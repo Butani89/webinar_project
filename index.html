@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webinar: Framtidens Molntjänster</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>Webinar: Framtidens Molntjänster med Azure ☁️</h1>
+        <p>Lär dig hur du skalar din infrastruktur inför julhandeln!</p>
+    </header>
+
+    <div class="container">
+        <section class="info-section">
+            <h2>Om Webinariet</h2>
+            <p><strong>Datum:</strong> 24 December 2024</p>
+            <p><strong>Tid:</strong> 10:00 - 11:30</p>
+            
+            <h3>Agenda</h3>
+            <ul>
+                <li>10:00 - Intro till Azure VM</li>
+                <li>10:30 - Skalbarhet & Säkerhet</li>
+                <li>11:00 - Frågestund</li>
+            </ul>
+
+            <h3>Talare</h3>
+            <div class="speaker">
+                <p><strong>Anna Andersson</strong> - Cloud Architect på TechSolutions</p>
+            </div>
+        </section>
+
+        <section class="form-section">
+            <h2>Anmäl dig här</h2>
+            <form id="signupForm">
+                
+                <label for="name">Namn:</label>
+                <input type="text" id="name" name="name" required placeholder="Ditt namn">
+
+                <label for="email">E-post:</label>
+                <input type="email" id="email" name="email" required placeholder="namn@foretag.se">
+
+                <label for="company">Företag:</label>
+                <input type="text" id="company" name="company" required placeholder="Ditt företag">
+
+                <label for="jobtitle">Jobbtitel:</label>
+                <input type="text" id="jobtitle" name="jobtitle" placeholder="T.ex. Utvecklare">
+
+                <button type="submit">Boka min plats</button>
+                
+                <p id="message"></p>
+            </form>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
