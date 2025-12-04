@@ -34,6 +34,7 @@
         <section id="recept">
             <h2>Enkla Svamprecept</h2>
             <p>Här hittar du snabba och goda sätt att tillaga din skörd!</p>
+
             <div class="recept-kort">
                 <h3>1. Kantarelltoast (5 min)</h3>
                 <div class="ingredienser">
@@ -41,14 +42,37 @@
                     <ul>
                         <li>200g färska kantareller</li>
                         <li>1 msk smör</li>
-                        <li>1 liten schalottenlök</li>
-                        <li>Bröd, salt, peppar, persilja</li>
+                        <li>1 liten schalottenlök (finhackad)</li>
+                        <li>2 skivor ljust bröd</li>
                     </ul>
                 </div>
                 <div class="instruktioner">
-                    <h4>Gör så här:</h4>
+                    <h4>Instruktioner:</h4>
                     <ol>
-                        <li>Stek svampen torr, tillsätt smör och lök. Krydda och lägg på rostat bröd.</li>
+                        <li>Rensa och stek svamparna torrt.</li>
+                        <li>Tillsätt smör och lök, stek tills mjukt.</li>
+                        <li>Lägg på rostat bröd.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <hr> 
+            
+            <div class="recept-kort">
+                <h3>2. Snabb Krämig Svampsås (10 min)</h3>
+                <div class="ingredienser">
+                    <h4>Ingredienser:</h4>
+                    <ul>
+                        <li>300g valfri svamp</li>
+                        <li>2 dl grädde</li>
+                        <li>Sojasås, salt och peppar</li>
+                    </ul>
+                </div>
+                <div class="instruktioner">
+                    <h4>Instruktioner:</h4>
+                    <ol>
+                        <li>Stek svampen.</li>
+                        <li>Häll på grädde och låt koka ihop.</li>
                     </ol>
                 </div>
             </div>
@@ -56,17 +80,19 @@
 
         <section id="webinar">
             <h2>Anmäl dig till vårt Svampwebinar!</h2>
-            <p>Lär dig identifiera de 10 vanligaste ätliga svamparna med våra expertföreläsare.</p>
+            <p>Lär dig identifiera de 10 vanligaste ätliga svamparna.</p>
+            <p><strong>Nästa datum:</strong> Tisdag 15 oktober kl 19:00.</p>
             
             <h3>Träffa Våra Föreläsare</h3>
             <div class="forelasare-lista">
                 <div class="forelasare-kort">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Kantarell.jpg/320px-Kantarell.jpg" alt="M. Myceliaceae" class="forelasare-bild">
+                    <img src="placeholder_forelasare1.jpg" alt="M. Myceliaceae" class="forelasare-bild">
                     <h4>M. Myceliaceae</h4>
                     <p class="titel">Mykolog och Svampexpert</p>
                 </div>
+
                 <div class="forelasare-kort">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Amanita_muscaria_3_vliegenzwammen_op_rij.jpg/320px-Amanita_muscaria_3_vliegenzwammen_op_rij.jpg" alt="A. Amanita" class="forelasare-bild">
+                    <img src="placeholder_forelasare2.jpg" alt="A. Amanita" class="forelasare-bild">
                     <h4>A. Amanita</h4>
                     <p class="titel">Skogskock</p>
                 </div>
@@ -76,8 +102,8 @@
                 <h3>Säkra din plats idag!</h3>
                 
                 <div class="form-grupp">
-                    <label for="namn">Ditt Namn:</label>
-                    <input type="text" id="namn" name="namn" required>
+                    <label for="name">Ditt Namn:</label>
+                    <input type="text" id="name" name="name" required>
                 </div>
                 
                 <div class="form-grupp">
@@ -86,25 +112,25 @@
                 </div>
 
                 <div class="form-grupp">
-                    <label for="company">Svampklubb / Förening (Valfritt):</label>
-                    <input type="text" id="company" name="company" placeholder="T.ex. Mykologerna">
+                    <label for="company">Förening / Klubb (Valfritt):</label>
+                    <input type="text" id="company" name="company">
                 </div>
 
                 <div class="form-grupp">
-                    <label for="jobtitle">Erfarenhetsnivå:</label>
-                    <input type="text" id="jobtitle" name="jobtitle" placeholder="T.ex. Nybörjare eller Expert">
+                    <label for="jobtitle">Erfarenhet:</label>
+                    <input type="text" id="jobtitle" name="jobtitle" placeholder="T.ex. Nybörjare">
                 </div>
 
                 <div class="form-grupp">
                     <label for="datum">Välj Datum:</label>
                     <select id="datum" name="datum">
-                        <option value="15 okt">15 oktober 2025</option>
-                        <option value="12 nov">12 november 2025</option>
+                        <option value="2025-10-15">15 oktober 2025</option>
+                        <option value="2025-11-12">12 november 2025</option>
                     </select>
                 </div>
                 
                 <button type="submit" class="anmalan-knapp">Anmäl mig!</button>
-                <p id="form-feedback" style="display: none; margin-top:10px; font-weight:bold;"></p>
+                <p id="form-feedback" style="display: none; font-weight: bold; margin-top: 10px;"></p>
             </form>
         </section>
         
