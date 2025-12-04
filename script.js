@@ -1,5 +1,5 @@
-// Lista med svampfakta
-const svampFaktaLista = [
+// List of mushroom facts
+const mushroomFacts = [
     "Världens största organism är en svamp (Armillaria ostoyae) som täcker över 9 kvadratkilometer i Oregon, USA.",
     "Svampen är varken en växt eller ett djur – de har ett eget rike (Fungi).",
     "Många svampar lyser i mörkret (bioluminescens) för att locka insekter som sprider deras sporer.",
@@ -7,38 +7,38 @@ const svampFaktaLista = [
     "Penisillin, ett av världens viktigaste antibiotika, kommer från mögelsvampen Penicillium."
 ];
 
-// Funktion för att visa ett slumpmässigt fakta
-function visaSlumpmassigtFakta() {
-    const slumpIndex = Math.floor(Math.random() * svampFaktaLista.length);
-    const faktaText = svampFaktaLista[slumpIndex];
-    const faktaElement = document.getElementById('svampFakta');
-    faktaElement.textContent = faktaText;
+// Function to display a random fact
+function displayRandomFact() {
+    const randomIndex = Math.floor(Math.random() * mushroomFacts.length);
+    const factText = mushroomFacts[randomIndex];
+    
+    const factElement = document.getElementById('mushroomFact');
+    factElement.textContent = factText;
 }
 
-// Funktion för att hantera webinar-anmälan
-function hanteraWebinarAnmalan(event) {
-    event.preventDefault(); // Stoppa sidan från att ladda om
+// Function to handle webinar registration (Sends to Database)
+function handleWebinarRegistration(event) {
+    event.preventDefault(); // Prevent page reload
     
     const formFeedback = document.getElementById('form-feedback');
-    const anmalanKnapp = document.querySelector('.anmalan-knapp');
+    const submitBtn = document.querySelector('.submit-btn');
     
-    // Hämta värden från formuläret
-    const name = document.getElementById('namn').value;
+    // Get values from the form
+    // We use id="name", "email" etc. as defined in HTML
+    const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
+    const company = document.getElementById('company').value || "Privat";
     
-    // Om fälten är tomma sätter vi ett streck så databasen inte klagar
-    const company = document.getElementById('company').value || "-";
-    
-    // Vi lägger ihop Jobbtitel + Datum så vi sparar datumet i databasen också!
-    const jobtitleRaw = document.getElementById('jobtitle').value || "Entusiast";
-    const datum = document.getElementById('datum').value;
-    const jobtitle = `${jobtitleRaw} (Datum: ${datum})`;
+    // Combine Experience + Date to fit into the 'jobtitle' database column
+    const experience = document.getElementById('experience').value || "Intresserad";
+    const date = document.getElementById('date').value;
+    const jobtitle = `${experience} (Datum: ${date})`;
 
-    // Visa att vi jobbar
-    anmalanKnapp.textContent = "Skickar...";
-    anmalanKnapp.disabled = true;
+    // Update UI to show loading
+    submitBtn.textContent = "Skickar...";
+    submitBtn.disabled = true;
 
-    // SKICKA TILL AZURE-SERVERN
+    // Send data to the Azure Python Backend
     fetch('/api/register', {
         method: 'POST',
         headers: {
@@ -48,39 +48,41 @@ function hanteraWebinarAnmalan(event) {
     })
     .then(response => {
         if (response.ok) {
-            // Om allt gick bra (Grön text)
+            // Success (Green text)
             formFeedback.style.display = 'block';
             formFeedback.style.color = '#556B2F'; 
-            formFeedback.textContent = `Tack ${name}! Du är anmäld till ${datum}.`;
+            formFeedback.textContent = `Tack, ${name}! Din anmälan till ${date} är mottagen.`;
             document.getElementById('webinarForm').reset();
         } else {
-            // Om servern sa nej
-            throw new Error('Serverfel');
+            // Server error
+            throw new Error('Server error');
         }
     })
     .catch(error => {
-        // Om vi inte fick kontakt med servern (Röd text)
+        // Network error (Red text)
         console.error('Error:', error);
         formFeedback.style.display = 'block';
-        formFeedback.style.color = 'red';
+        formFeedback.style.color = '#8B4513'; // Brown/Red for error
         formFeedback.textContent = "Kunde inte nå servern. Försök igen senare.";
     })
     .finally(() => {
-        // Återställ knappen
-        anmalanKnapp.textContent = "Anmäl mig!";
-        anmalanKnapp.disabled = false;
+        // Reset button
+        submitBtn.textContent = "Anmäl mig!";
+        submitBtn.disabled = false;
     });
 }
 
-// Kopplar funktionerna när sidan laddas
+// Attach event listeners when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const faktaKnapp = document.getElementById('visaFaktaKnapp');
-    if (faktaKnapp) {
-        faktaKnapp.addEventListener('click', visaSlumpmassigtFakta);
+    // 1. Fact Button
+    const factBtn = document.getElementById('factBtn');
+    if (factBtn) {
+        factBtn.addEventListener('click', displayRandomFact);
     }
     
+    // 2. Form Submission
     const webinarForm = document.getElementById('webinarForm');
     if (webinarForm) {
-        webinarForm.addEventListener('submit', hanteraWebinarAnmalan);
+        webinarForm.addEventListener('submit', handleWebinarRegistration);
     }
 });
