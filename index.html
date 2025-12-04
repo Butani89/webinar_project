@@ -10,69 +10,82 @@
     <header>
         <h1>Svamparnas Fantastiska Rike!</h1>
         <nav>
-            <a href="#startsida">Hem</a>
-            <a href="#arter">Svamparter</a>
-            <a href="#recept">Recept</a>
+            <a href="#home">Hem</a>
+            <a href="#species">Svamparter</a>
+            <a href="#recipes">Recept</a>
             <a href="#webinar">Webinar</a>
-            <a href="#galleri">Galleri</a>
+            <a href="#gallery">Galleri</a>
         </nav>
     </header>
 
     <main>
-        <section id="startsida">
+        <section id="home">
             <h2>Välkommen till Svampguiden</h2>
             <p>Lär dig mer om ätliga och oätliga svampar.</p>
-            <button id="visaFaktaKnapp">Klicka för ett svampfakta!</button>
-            <p id="svampFakta"></p>
+            <button id="factBtn">Klicka för ett svampfakta!</button>
+            <p id="mushroomFact"></p>
         </section>
 
-        <section id="arter">
+        <section id="species">
             <h2>Populära Svamparter</h2>
             <p>Denna sektion kommer att fyllas med information om specifika svampar snart!</p>
         </section>
         
-        <section id="recept">
+        <section id="recipes">
             <h2>Enkla Svamprecept</h2>
             <p>Här hittar du snabba och goda sätt att tillaga din skörd!</p>
 
-            <div class="recept-kort">
+            <div class="recipe-card">
                 <h3>1. Kantarelltoast (5 min)</h3>
-                <div class="ingredienser">
+                
+                <div class="ingredients">
                     <h4>Ingredienser:</h4>
                     <ul>
                         <li>200g färska kantareller</li>
                         <li>1 msk smör</li>
                         <li>1 liten schalottenlök (finhackad)</li>
-                        <li>2 skivor ljust bröd</li>
+                        <li>2 skivor ljust bröd (t.ex. levain)</li>
+                        <li>1 nypa salt & svartpeppar</li>
+                        <li>Färsk persilja (till garnering)</li>
                     </ul>
                 </div>
-                <div class="instruktioner">
+                
+                <div class="instructions">
                     <h4>Instruktioner:</h4>
                     <ol>
-                        <li>Rensa och stek svamparna torrt.</li>
-                        <li>Tillsätt smör och lök, stek tills mjukt.</li>
-                        <li>Lägg på rostat bröd.</li>
+                        <li>Rensa och dela svamparna i mindre bitar.</li>
+                        <li>Hetta upp en stekpanna utan fett tills den är torr. Stek kantarellerna tills vätskan har kokat bort.</li>
+                        <li>Tillsätt smöret och schalottenlöken. Fräs tills löken är mjuk.</li>
+                        <li>Salta och peppra.</li>
+                        <li>Rosta brödet. Lägg svampblandningen på toppen och garnera med persilja.</li>
                     </ol>
                 </div>
             </div>
 
             <hr> 
             
-            <div class="recept-kort">
+            <div class="recipe-card">
                 <h3>2. Snabb Krämig Svampsås (10 min)</h3>
-                <div class="ingredienser">
+                
+                <div class="ingredients">
                     <h4>Ingredienser:</h4>
                     <ul>
-                        <li>300g valfri svamp</li>
-                        <li>2 dl grädde</li>
-                        <li>Sojasås, salt och peppar</li>
+                        <li>300g valfri svamp (t.ex. champinjoner, karljohan)</li>
+                        <li>1 msk olja eller smör</li>
+                        <li>1 klyfta vitlök (pressad)</li>
+                        <li>2 dl grädde (matlagningsgrädde eller vispgrädde)</li>
+                        <li>1 tsk sojasås (för umami)</li>
+                        <li>Salt och vitpeppar</li>
                     </ul>
                 </div>
-                <div class="instruktioner">
+                
+                <div class="instructions">
                     <h4>Instruktioner:</h4>
                     <ol>
-                        <li>Stek svampen.</li>
-                        <li>Häll på grädde och låt koka ihop.</li>
+                        <li>Skiva svampen. Stek den i het panna tills all vätska är borta.</li>
+                        <li>Tillsätt smör/olja och vitlök. Fräs i en minut.</li>
+                        <li>Häll i grädden och sojasåsen. Låt sjuda i 5 minuter tills såsen tjocknar.</li>
+                        <li>Smaka av med salt och peppar. Servera till pasta, kött eller potatis!</li>
                     </ol>
                 </div>
             </div>
@@ -80,71 +93,60 @@
 
         <section id="webinar">
             <h2>Anmäl dig till vårt Svampwebinar!</h2>
-            <p>Lär dig identifiera de 10 vanligaste ätliga svamparna.</p>
+            <p>Lär dig identifiera de 10 vanligaste ätliga svamparna med våra expertföreläsare.</p>
             <p><strong>Nästa datum:</strong> Tisdag 15 oktober kl 19:00.</p>
             
             <h3>Träffa Våra Föreläsare</h3>
-            <div class="forelasare-lista">
-                <div class="forelasare-kort">
-                    <img src="placeholder_forelasare1.jpg" alt="M. Myceliaceae" class="forelasare-bild">
+            <div class="speaker-list">
+                
+                <div class="speaker-card">
+                    <img src="m.myceliaceae.jpg" alt="Bild på M. Myceliaceae" class="speaker-img">
                     <h4>M. Myceliaceae</h4>
-                    <p class="titel">Mykolog och Svampexpert</p>
+                    <p class="title">Mykolog och Svampexpert</p>
+                    <p>M. Myceliaceae har plockat svamp i över 30 år och är specialist på Karljohan och giftiga dubbelgångare. Han delar med sig av sina bästa knep för identifiering.</p>
                 </div>
 
-                <div class="forelasare-kort">
-                    <img src="placeholder_forelasare2.jpg" alt="A. Amanita" class="forelasare-bild">
+                <div class="speaker-card">
+                    <img src="a.amanita.jpg" alt="Bild på A. Amanita" class="speaker-img">
                     <h4>A. Amanita</h4>
-                    <p class="titel">Skogskock</p>
+                    <p class="title">Skogskock och Receptkreatör</p>
+                    <p>A. Amanita fokuserar på det kulinariska. Hon lär dig hur du bäst konserverar, torkar och tillagar olika svamparter för maximal smakupplevelse.</p>
                 </div>
+
             </div>
 
             <form id="webinarForm">
                 <h3>Säkra din plats idag!</h3>
                 
-                <div class="form-grupp">
+                <div class="form-group">
                     <label for="name">Ditt Namn:</label>
                     <input type="text" id="name" name="name" required>
                 </div>
                 
-                <div class="form-grupp">
+                <div class="form-group">
                     <label for="email">E-post:</label>
                     <input type="email" id="email" name="email" required>
                 </div>
 
-                <div class="form-grupp">
+                <div class="form-group">
                     <label for="company">Förening / Klubb (Valfritt):</label>
-                    <input type="text" id="company" name="company">
+                    <input type="text" id="company" name="company" placeholder="T.ex. Svampklubben">
                 </div>
 
-                <div class="form-grupp">
-                    <label for="jobtitle">Erfarenhet:</label>
-                    <input type="text" id="jobtitle" name="jobtitle" placeholder="T.ex. Nybörjare">
+                <div class="form-group">
+                    <label for="experience">Erfarenhet:</label>
+                    <input type="text" id="experience" name="experience" placeholder="T.ex. Nybörjare">
                 </div>
 
-                <div class="form-grupp">
-                    <label for="datum">Välj Datum:</label>
-                    <select id="datum" name="datum">
+                <div class="form-group">
+                    <label for="date">Välj Datum (om flera):</label>
+                    <select id="date" name="date">
                         <option value="2025-10-15">15 oktober 2025</option>
                         <option value="2025-11-12">12 november 2025</option>
                     </select>
                 </div>
                 
-                <button type="submit" class="anmalan-knapp">Anmäl mig!</button>
-                <p id="form-feedback" style="display: none; font-weight: bold; margin-top: 10px;"></p>
+                <button type="submit" class="submit-btn">Anmäl mig!</button>
+                <p id="form-feedback" style="display: none;"></p>
             </form>
         </section>
-        
-        <section id="galleri">
-            <h2>Svampgalleri</h2>
-            <p>Här kommer dina vackra svampbilder att visas!</p>
-        </section>
-
-    </main>
-
-    <footer>
-        <p>&copy; 2025 Svamparnas Värld</p>
-    </footer>
-
-    <script src="script.js"></script> 
-</body>
-</html>
