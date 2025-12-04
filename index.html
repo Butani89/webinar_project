@@ -3,59 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webinar: Framtidens Molntjänster</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Svamparnas Värld</title>
+    <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
-
     <header>
-        <h1>Webinar: Framtidens Molntjänster med Azure ☁️</h1>
-        <p>Lär dig hur du skalar din infrastruktur inför julhandeln!</p>
+        <h1>Svamparnas Fantastiska Rike!</h1>
+        <nav>
+            <a href="#startsida">Hem</a>
+            <a href="#arter">Svamparter</a>
+            <a href="#recept">Recept</a>
+            <a href="#webinar">Webinar</a>
+            <a href="#galleri">Galleri</a>
+        </nav>
     </header>
 
-    <div class="container">
-        <section class="info-section">
-            <h2>Om Webinariet</h2>
-            <p><strong>Datum:</strong> 24 December 2024</p>
-            <p><strong>Tid:</strong> 10:00 - 11:30</p>
-            
-            <h3>Agenda</h3>
-            <ul>
-                <li>10:00 - Intro till Azure VM</li>
-                <li>10:30 - Skalbarhet & Säkerhet</li>
-                <li>11:00 - Frågestund</li>
-            </ul>
+    <main>
+        <section id="startsida">
+            <h2>Välkommen till Svampguiden</h2>
+            <p>Lär dig mer om ätliga och oätliga svampar.</p>
+            <button id="visaFaktaKnapp">Klicka för ett svampfakta!</button>
+            <p id="svampFakta"></p>
+        </section>
 
-            <h3>Talare</h3>
-            <div class="speaker">
-                <p><strong>Anna Andersson</strong> - Cloud Architect på TechSolutions</p>
+        <section id="arter">
+            <h2>Populära Svamparter</h2>
+            <p>Denna sektion kommer att fyllas med information om specifika svampar snart!</p>
+        </section>
+        
+        <section id="recept">
+            <h2>Enkla Svamprecept</h2>
+            <p>Här hittar du snabba och goda sätt att tillaga din skörd!</p>
+            <div class="recept-kort">
+                <h3>1. Kantarelltoast (5 min)</h3>
+                <div class="ingredienser">
+                    <h4>Ingredienser:</h4>
+                    <ul>
+                        <li>200g färska kantareller</li>
+                        <li>1 msk smör</li>
+                        <li>1 liten schalottenlök</li>
+                        <li>Bröd, salt, peppar, persilja</li>
+                    </ul>
+                </div>
+                <div class="instruktioner">
+                    <h4>Gör så här:</h4>
+                    <ol>
+                        <li>Stek svampen torr, tillsätt smör och lök. Krydda och lägg på rostat bröd.</li>
+                    </ol>
+                </div>
             </div>
         </section>
 
-        <section class="form-section">
-            <h2>Anmäl dig här</h2>
-            <form id="signupForm">
+        <section id="webinar">
+            <h2>Anmäl dig till vårt Svampwebinar!</h2>
+            <p>Lär dig identifiera de 10 vanligaste ätliga svamparna med våra expertföreläsare.</p>
+            
+            <h3>Träffa Våra Föreläsare</h3>
+            <div class="forelasare-lista">
+                <div class="forelasare-kort">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Kantarell.jpg/320px-Kantarell.jpg" alt="M. Myceliaceae" class="forelasare-bild">
+                    <h4>M. Myceliaceae</h4>
+                    <p class="titel">Mykolog och Svampexpert</p>
+                </div>
+                <div class="forelasare-kort">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Amanita_muscaria_3_vliegenzwammen_op_rij.jpg/320px-Amanita_muscaria_3_vliegenzwammen_op_rij.jpg" alt="A. Amanita" class="forelasare-bild">
+                    <h4>A. Amanita</h4>
+                    <p class="titel">Skogskock</p>
+                </div>
+            </div>
+
+            <form id="webinarForm">
+                <h3>Säkra din plats idag!</h3>
                 
-                <label for="name">Namn:</label>
-                <input type="text" id="name" name="name" required placeholder="Ditt namn">
-
-                <label for="email">E-post:</label>
-                <input type="email" id="email" name="email" required placeholder="namn@foretag.se">
-
-                <label for="company">Företag:</label>
-                <input type="text" id="company" name="company" required placeholder="Ditt företag">
-
-                <label for="jobtitle">Jobbtitel:</label>
-                <input type="text" id="jobtitle" name="jobtitle" placeholder="T.ex. Utvecklare">
-
-                <button type="submit">Boka min plats</button>
+                <div class="form-grupp">
+                    <label for="namn">Ditt Namn:</label>
+                    <input type="text" id="namn" name="namn" required>
+                </div>
                 
-                <p id="message"></p>
+                <div class="form-grupp">
+                    <label for="email">E-post:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-grupp">
+                    <label for="company">Svampklubb / Förening (Valfritt):</label>
+                    <input type="text" id="company" name="company" placeholder="T.ex. Mykologerna">
+                </div>
+
+                <div class="form-grupp">
+                    <label for="jobtitle">Erfarenhetsnivå:</label>
+                    <input type="text" id="jobtitle" name="jobtitle" placeholder="T.ex. Nybörjare eller Expert">
+                </div>
+
+                <div class="form-grupp">
+                    <label for="datum">Välj Datum:</label>
+                    <select id="datum" name="datum">
+                        <option value="15 okt">15 oktober 2025</option>
+                        <option value="12 nov">12 november 2025</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="anmalan-knapp">Anmäl mig!</button>
+                <p id="form-feedback" style="display: none; margin-top:10px; font-weight:bold;"></p>
             </form>
         </section>
-    </div>
+        
+        <section id="galleri">
+            <h2>Svampgalleri</h2>
+            <p>Här kommer dina vackra svampbilder att visas!</p>
+        </section>
 
-    <script src="script.js"></script>
+    </main>
 
+    <footer>
+        <p>&copy; 2025 Svamparnas Värld</p>
+    </footer>
+
+    <script src="script.js"></script> 
 </body>
 </html>
