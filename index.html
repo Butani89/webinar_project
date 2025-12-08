@@ -10,95 +10,41 @@
     <header>
         <h1>Svamparnas Fantastiska Rike!</h1>
         <nav>
-            <a href="#home">Hem</a>
+            <a href="#webinar">Webinar</a>
+            <a href="#agenda">Agenda</a>
+            <a href="#home">Svampfakta</a>
             <a href="#species">Svamparter</a>
             <a href="#recipes">Recept</a>
-            <a href="#webinar">Webinar</a>
             <a href="#gallery">Galleri</a>
         </nav>
     </header>
 
     <main>
-        <section id="home">
-            <h2>Välkommen till Svampguiden</h2>
-            <p>Lär dig mer om ätliga och oätliga svampar.</p>
-            <button id="factBtn">Klicka för ett svampfakta!</button>
-            <p id="mushroomFact"></p>
-        </section>
-
-        <section id="species">
-            <h2>Populära Svamparter</h2>
-            <p>Denna sektion kommer att fyllas med information om specifika svampar snart!</p>
-        </section>
         
-        <section id="recipes">
-            <h2>Enkla Svamprecept</h2>
-            <p>Här hittar du snabba och goda sätt att tillaga din skörd!</p>
-
-            <div class="recipe-card">
-                <h3>1. Kantarelltoast (5 min)</h3>
-                
-                <div class="ingredients">
-                    <h4>Ingredienser:</h4>
-                    <ul>
-                        <li>200g färska kantareller</li>
-                        <li>1 msk smör</li>
-                        <li>1 liten schalottenlök (finhackad)</li>
-                        <li>2 skivor ljust bröd (t.ex. levain)</li>
-                        <li>1 nypa salt & svartpeppar</li>
-                        <li>Färsk persilja (till garnering)</li>
-                    </ul>
-                </div>
-                
-                <div class="instructions">
-                    <h4>Instruktioner:</h4>
-                    <ol>
-                        <li>Rensa och dela svamparna i mindre bitar.</li>
-                        <li>Hetta upp en stekpanna utan fett tills den är torr. Stek kantarellerna tills vätskan har kokat bort.</li>
-                        <li>Tillsätt smöret och schalottenlöken. Fräs tills löken är mjuk.</li>
-                        <li>Salta och peppra.</li>
-                        <li>Rosta brödet. Lägg svampblandningen på toppen och garnera med persilja.</li>
-                    </ol>
-                </div>
-            </div>
-
-            <hr> 
-            
-            <div class="recipe-card">
-                <h3>2. Snabb Krämig Svampsås (10 min)</h3>
-                
-                <div class="ingredients">
-                    <h4>Ingredienser:</h4>
-                    <ul>
-                        <li>300g valfri svamp (t.ex. champinjoner, karljohan)</li>
-                        <li>1 msk olja eller smör</li>
-                        <li>1 klyfta vitlök (pressad)</li>
-                        <li>2 dl grädde (matlagningsgrädde eller vispgrädde)</li>
-                        <li>1 tsk sojasås (för umami)</li>
-                        <li>Salt och vitpeppar</li>
-                    </ul>
-                </div>
-                
-                <div class="instructions">
-                    <h4>Instruktioner:</h4>
-                    <ol>
-                        <li>Skiva svampen. Stek den i het panna tills all vätska är borta.</li>
-                        <li>Tillsätt smör/olja och vitlök. Fräs i en minut.</li>
-                        <li>Häll i grädden och sojasåsen. Låt sjuda i 5 minuter tills såsen tjocknar.</li>
-                        <li>Smaka av med salt och peppar. Servera till pasta, kött eller potatis!</li>
-                    </ol>
-                </div>
-            </div>
-        </section>
-
         <section id="webinar">
-            <h2>Anmäl dig till vårt Svampwebinar!</h2>
-            <p>Lär dig identifiera de 10 vanligaste ätliga svamparna med våra expertföreläsare.</p>
-            <p><strong>Nästa datum:</strong> Tisdag 15 oktober kl 19:00.</p>
+            <h2>Julaftons-special: Svampwebinar! 🎄🍄</h2>
+            <p>Fira julen med oss och lär dig allt om skogens guld.</p>
+            
+            <div class="event-info">
+                <p><strong>Datum:</strong> Onsdag 24 december 2025</p>
+                <p><strong>Tid:</strong> 10:00 - 16:00</p>
+                <p class="deadline">⚠️ Sista anmälningsdag: 17 december 2025 (1 vecka innan start)</p>
+            </div>
+
+            <div class="join-section">
+                <h3>Delta i julfirandet</h3>
+                <p id="countdown-text">Räknar ner till dopparedagen...</p>
+                
+                <div class="join-buttons">
+                    <button class="btn-discord">Gå med i Discord</button>
+                    <button class="btn-teams">Öppna Microsoft Teams</button>
+                    <button class="btn-meet">Anslut via Google Meet</button>
+                </div>
+                <p class="small-note">Länkarna aktiveras 15 minuter innan start.</p>
+            </div>
             
             <h3>Träffa Våra Föreläsare</h3>
             <div class="speaker-list">
-                
                 <div class="speaker-card">
                     <img src="https://raw.githubusercontent.com/Butani89/webinar_project/main/m.myceliaceae.jpg" alt="Bild på M. Myceliaceae" class="speaker-img">
                     <h4>M. Myceliaceae</h4>
@@ -109,10 +55,9 @@
                 <div class="speaker-card">
                     <img src="https://raw.githubusercontent.com/Butani89/webinar_project/main/a.amanita.jpg" alt="Bild på A. Amanita" class="speaker-img">
                     <h4>A. Amanita</h4>
-                    <p class="title">Skogskock och Receptkreatör</p>
+                    <p class="title">Skogskock</p>
                     <p>A. Amanita fokuserar på det kulinariska. Hon lär dig hur du bäst konserverar, torkar och tillagar olika svamparter för maximal smakupplevelse.</p>
                 </div>
-
             </div>
 
             <form id="webinarForm">
@@ -139,10 +84,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="date">Välj Datum (om flera):</label>
+                    <label for="date">Välj Datum:</label>
                     <select id="date" name="date">
-                        <option value="2025-10-15">15 oktober 2025</option>
-                        <option value="2025-11-12">12 november 2025</option>
+                        <option value="2025-12-24">24 december 2025 (10:00)</option>
                     </select>
                 </div>
                 
@@ -150,33 +94,109 @@
                 <p id="form-feedback" style="display: none;"></p>
             </form>
         </section>
+
+        <section id="agenda">
+            <h2>Dagens Agenda 🎅</h2>
+            <div class="agenda-container">
+                <ul class="agenda-list">
+                    <li>
+                        <span class="time">10:00</span>
+                        <span class="activity">Välkomsttal och Julglögg (Virtuell)</span>
+                    </li>
+                    <li>
+                        <span class="time">10:30</span>
+                        <span class="activity"><strong>M. Myceliaceae:</strong> Vinter-svampar att plocka nu</span>
+                    </li>
+                    <li>
+                        <span class="time">12:00</span>
+                        <span class="activity">Lunchpaus</span>
+                    </li>
+                    <li>
+                        <span class="time">13:00</span>
+                        <span class="activity"><strong>A. Amanita:</strong> Laga mat med torkad svamp till julbordet</span>
+                    </li>
+                    <li>
+                        <span class="time">15:00</span>
+                        <span class="activity">Frågestund och Julklappsutdelning</span>
+                    </li>
+                    <li>
+                        <span class="time">16:00</span>
+                        <span class="activity">Avslutning</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="home">
+            <h2>Välkommen till Svampguiden</h2>
+            <p>Här hittar du roliga fakta medans du väntar på webinariet.</p>
+            <button id="factBtn">Klicka för ett svampfakta!</button>
+            <p id="mushroomFact"></p>
+        </section>
+
+        <section id="species">
+            <h2>Populära Svamparter</h2>
+            <p>Denna sektion kommer att fyllas med information om specifika svampar snart!</p>
+        </section>
         
+        <section id="recipes">
+            <h2>Enkla Svamprecept</h2>
+            <div class="recipe-card">
+                <h3>1. Kantarelltoast (5 min)</h3>
+                <div class="ingredients">
+                    <h4>Ingredienser:</h4>
+                    <ul>
+                        <li>200g färska kantareller</li>
+                        <li>1 msk smör</li>
+                        <li>1 liten schalottenlök</li>
+                        <li>Bröd, salt, peppar, persilja</li>
+                    </ul>
+                </div>
+                <div class="instructions">
+                    <h4>Instruktioner:</h4>
+                    <ol>
+                        <li>Stek svampen torr, tillsätt smör och lök.</li>
+                        <li>Krydda och lägg på rostat bröd.</li>
+                    </ol>
+                </div>
+            </div>
+            <hr>
+            <div class="recipe-card">
+                <h3>2. Svampsås (10 min)</h3>
+                <div class="ingredients">
+                    <h4>Ingredienser:</h4>
+                    <ul>
+                        <li>Svamp, grädde, soja, kryddor</li>
+                    </ul>
+                </div>
+                <div class="instructions">
+                    <h4>Instruktioner:</h4>
+                    <ol>
+                        <li>Stek svamp, häll på grädde och koka ihop.</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
         <section id="gallery">
             <h2>Svampgalleri: Kända Arter</h2>
-            <p>Klicka på bilderna för att se detaljer!</p>
-            
             <div class="gallery-grid">
-                
                 <div class="gallery-item">
-                    <img src="https://raw.githubusercontent.com/Butani89/webinar_project/main/svamp1.png" alt="Kantarell i mossan" class="gallery-img">
-                    <div class="image-info">Kantarell (Chantarellus cibarius)</div>
+                    <img src="https://raw.githubusercontent.com/Butani89/webinar_project/main/svamp1.png" alt="Kantarell" class="gallery-img">
+                    <div class="image-info">Kantarell</div>
                 </div>
-
                 <div class="gallery-item">
-                    <img src="https://raw.githubusercontent.com/Butani89/webinar_project/main/svamp2.png" alt="Majestätisk Karljohansvamp" class="gallery-img">
-                    <div class="image-info">Karljohansvamp (Boletus edulis)</div>
+                    <img src="https://raw.githubusercontent.com/Butani89/webinar_project/main/svamp2.png" alt="Karljohan" class="gallery-img">
+                    <div class="image-info">Karljohansvamp</div>
                 </div>
-
                 <div class="gallery-item">
-                    <img src="https://raw.githubusercontent.com/Butani89/webinar_project/main/svamp3.png" alt="Röd Flugsvamp med vita prickar" class="gallery-img">
-                    <div class="image-info">Röd Flugsvamp (Amanita muscaria) - Varning!</div>
+                    <img src="https://raw.githubusercontent.com/Butani89/webinar_project/main/svamp3.png" alt="Flugsvamp" class="gallery-img">
+                    <div class="image-info">Röd Flugsvamp</div>
                 </div>
-
                 <div class="gallery-item">
-                    <img src="https://raw.githubusercontent.com/Butani89/webinar_project/main/svamp4.png" alt="Klase med Trattkantareller" class="gallery-img">
-                    <div class="image-info">Trattkantarell (Craterellus tubaeformis)</div>
+                    <img src="https://raw.githubusercontent.com/Butani89/webinar_project/main/svamp4.png" alt="Trattkantarell" class="gallery-img">
+                    <div class="image-info">Trattkantarell</div>
                 </div>
-                
             </div>
         </section>
 
