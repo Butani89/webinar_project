@@ -10,63 +10,73 @@ const mushroomFacts = [
 // Function to display a random fact
 function displayRandomFact() {
     const randomIndex = Math.floor(Math.random() * mushroomFacts.length);
-    const factText = mushroomFacts[randomIndex];
+    document.getElementById('mushroomFact').textContent = mushroomFacts[randomIndex];
+}
+
+// --- NEW: COUNTDOWN TIMER FUNCTION ---
+function updateCountdown() {
+    const countdownElement = document.getElementById('countdown-text');
     
-    const factElement = document.getElementById('mushroomFact');
-    factElement.textContent = factText;
+    // Måldatum: 24 December 2025 kl 10:00 (Julafton!)
+    const eventDate = new Date("December 24, 2025 10:00:00").getTime();
+    const now = new Date().getTime();
+    const distance = eventDate - now;
+
+    if (distance < 0) {
+        countdownElement.textContent = "Webinariet har startat! God Jul och klicka på länkarna nedan.";
+        countdownElement.style.color = "green";
+    } else {
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        
+        countdownElement.textContent = `Du kan gå med i mötet om: ${days} dagar, ${hours} timmar och ${minutes} minuter`;
+    }
 }
 
 // Function to handle webinar registration (Sends to Database)
 function handleWebinarRegistration(event) {
-    event.preventDefault(); // Prevent page reload
+    event.preventDefault(); 
     
     const formFeedback = document.getElementById('form-feedback');
     const submitBtn = document.querySelector('.submit-btn');
     
-    // Get values from the form
-    // We use id="name", "email" etc. as defined in HTML
+    // Hämtar data från formuläret
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     const company = document.getElementById('company').value || "Privat";
     
-    // Combine Experience + Date to fit into the 'jobtitle' database column
+    // Vi bakar in datum och erfarenhet i "jobtitle"-fältet för databasen
     const experience = document.getElementById('experience').value || "Intresserad";
     const date = document.getElementById('date').value;
     const jobtitle = `${experience} (Datum: ${date})`;
 
-    // Update UI to show loading
     submitBtn.textContent = "Skickar...";
     submitBtn.disabled = true;
 
-    // Send data to the Azure Python Backend
+    // Fetch-anrop till Python-backend
     fetch('/api/register', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, company, jobtitle }),
     })
     .then(response => {
         if (response.ok) {
-            // Success (Green text)
             formFeedback.style.display = 'block';
             formFeedback.style.color = '#556B2F'; 
-            formFeedback.textContent = `Tack, ${name}! Din anmälan till ${date} är mottagen.`;
+            formFeedback.textContent = `God Jul, ${name}! Din anmälan till ${date} är mottagen.`;
             document.getElementById('webinarForm').reset();
         } else {
-            // Server error
             throw new Error('Server error');
         }
     })
     .catch(error => {
-        // Network error (Red text)
         console.error('Error:', error);
         formFeedback.style.display = 'block';
-        formFeedback.style.color = '#8B4513'; // Brown/Red for error
+        formFeedback.style.color = '#8B4513';
         formFeedback.textContent = "Kunde inte nå servern. Försök igen senare.";
     })
     .finally(() => {
-        // Reset button
         submitBtn.textContent = "Anmäl mig!";
         submitBtn.disabled = false;
     });
@@ -76,13 +86,13 @@ function handleWebinarRegistration(event) {
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Fact Button
     const factBtn = document.getElementById('factBtn');
-    if (factBtn) {
-        factBtn.addEventListener('click', displayRandomFact);
-    }
+    if (factBtn) factBtn.addEventListener('click', displayRandomFact);
     
     // 2. Form Submission
     const webinarForm = document.getElementById('webinarForm');
-    if (webinarForm) {
-        webinarForm.addEventListener('submit', handleWebinarRegistration);
-    }
+    if (webinarForm) webinarForm.addEventListener('submit', handleWebinarRegistration);
+
+    // 3. Start Countdown (Updates every second)
+    setInterval(updateCountdown, 1000);
+    updateCountdown(); // Run immediately once
 });
