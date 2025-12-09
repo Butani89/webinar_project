@@ -3,9 +3,9 @@ import psycopg2
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app) # Tillåter att hemsidan pratar med servern
+CORS(app) # Allows the website to communicate with the server
 
-# Databasinställningar (matchar det vi skrev i bash-skriptet)
+# Database settings (matches what we wrote in the bash script)
 DB_CONFIG = {
     'dbname': 'webinar_db',
     'user': 'adminuser',
@@ -13,7 +13,7 @@ DB_CONFIG = {
     'host': 'localhost'
 }
 
-# Funktion för att skapa tabellen om den saknas
+# Function to create the table if it is missing
 def init_db():
     try:
         conn = psycopg2.connect(**DB_CONFIG)
@@ -30,11 +30,11 @@ def init_db():
         conn.commit()
         cur.close()
         conn.close()
-        print("Databas och tabell är redo!")
+        print("Database and table are ready!")
     except Exception as e:
-        print(f"Fel vid databasstart: {e}")
+        print(f"Error starting database: {e}")
 
-# Körs när servern startar
+# Runs when the server starts
 init_db()
 
 @app.route('/register', methods=['POST'])
@@ -43,7 +43,7 @@ def register():
     try:
         conn = psycopg2.connect(**DB_CONFIG)
         cur = conn.cursor()
-        # Spara datan i tabellen
+        # Save data to the table
         cur.execute(
             "INSERT INTO attendees (name, email, company, jobtitle) VALUES (%s, %s, %s, %s)",
             (data['name'], data['email'], data['company'], data['jobtitle'])
