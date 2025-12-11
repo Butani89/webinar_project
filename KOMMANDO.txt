@@ -1,0 +1,7 @@
+./provision_vm.sh
+
+
+sudo -u postgres psql -d webinar_db -c "SELECT * FROM attendees;"
+
+
+az group delete --name SvamparnasRG --no-wait
