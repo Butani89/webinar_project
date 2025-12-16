@@ -26,6 +26,7 @@ az network vnet create \
   --subnet-prefix 10.0.1.0/24
 
 # 3. CREATE BACKEND (Web Server)
+# This sends backend_setup.sh (with Gunicorn) to the server
 echo "Creating Backend server ($vm_size)..."
 az vm create \
   --resource-group $resource_group \
