@@ -1,19 +1,16 @@
 #!/bin/bash
 
 # --- VARIABLES ---
-# Using Sweden Central (Often cheaper and faster for you)
-resource_group="MushroomRG"
-location="swedencentral"
-vnet_name="MushroomVNet"
-subnet_name="MushroomSubnet"
+# ORIGINAL SETTINGS
+resource_group="SvamparnasRG"
+location="norwayeast"
+vnet_name="SvampVNet"
+subnet_name="SvampSubnet"
 vm_web_name="BackendVM"
 vm_proxy_name="FrontendProxyVM"
 
-# Student/Budget Friendly Size (~$10/month)
-vm_size="Standard_B1s" 
-
-# Your email for auto-shutdown notifications
-my_email="student@skola.se"
+# Your hardware choice
+vm_size="standard_b2ats_v2"
 
 # 1. Create Resource Group
 echo "Creating resource group in $location..."
@@ -85,12 +82,7 @@ echo "Opening ports..."
 # Only open port 80 on Proxy
 az vm open-port --resource-group $resource_group --name $vm_proxy_name --port 80
 
-# 8. SETUP AUTO-SHUTDOWN (Saves Money!)
-echo "Configuring Auto-shutdown at 19:00 CET..."
-az vm auto-shutdown -g $resource_group -n $vm_web_name --time 1900 --email $my_email
-az vm auto-shutdown -g $resource_group -n $vm_proxy_name --time 1900 --email $my_email
-
-# 9. Fetch IP addresses for report
+# 8. Fetch IP addresses for report
 proxy_public_ip=$(az vm show -d -g $resource_group -n $vm_proxy_name --query publicIps -o tsv)
 backend_public_ip=$(az vm show -d -g $resource_group -n $vm_web_name --query publicIps -o tsv)
 
@@ -104,8 +96,7 @@ echo "DEPLOYMENT COMPLETE! 🍄"
 echo "=================================================="
 echo ""
 echo "Region: $location"
-echo "Size:   $vm_size (Budget Friendly)"
-echo "Shutdown: Scheduled for 19:00 daily"
+echo "Size:   $vm_size"
 echo ""
 echo "Here are your connection details:"
 echo "--------------------------------------------------"
