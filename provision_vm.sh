@@ -1,15 +1,22 @@
 #!/bin/bash
 
 # --- VARIABLES ---
-resource_group="SvamparnasRG"
-location="norwayeast"
-vnet_name="SvampVNet"
-subnet_name="SvampSubnet"
+# Using Sweden Central (Often cheaper and faster for you)
+resource_group="MushroomRG"
+location="swedencentral"
+vnet_name="MushroomVNet"
+subnet_name="MushroomSubnet"
 vm_web_name="BackendVM"
 vm_proxy_name="FrontendProxyVM"
 
+# Student/Budget Friendly Size (~$10/month)
+vm_size="Standard_B1s" 
+
+# Your email for auto-shutdown notifications
+my_email="student@skola.se"
+
 # 1. Create Resource Group
-echo "Creating resource group..."
+echo "Creating resource group in $location..."
 az group create --name $resource_group --location $location
 
 # 2. Create Network
@@ -22,12 +29,12 @@ az network vnet create \
   --subnet-prefix 10.0.1.0/24
 
 # 3. CREATE BACKEND (Web Server)
-echo "Creating Backend server (Database & App)..."
+echo "Creating Backend server ($vm_size)..."
 az vm create \
   --resource-group $resource_group \
   --name $vm_web_name \
   --image Ubuntu2404 \
-  --size standard_b2ats_v2 \
+  --size $vm_size \
   --admin-username azureuser \
   --generate-ssh-keys \
   --vnet-name $vnet_name \
@@ -35,7 +42,7 @@ az vm create \
   --public-ip-sku Standard \
   --custom-data @backend_setup.sh
 
-# 4. Fetch Backend Server PRIVATE IP (For internal connection)
+# 4. Fetch Backend Server PRIVATE IP
 echo "Fetching private IP for Backend..."
 web_private_ip=$(az vm show -d -g $resource_group -n $vm_web_name --query privateIps -o tsv)
 
@@ -60,12 +67,12 @@ systemctl restart nginx
 EOF
 
 # 6. CREATE FRONTEND (Reverse Proxy)
-echo "Creating Proxy server..."
+echo "Creating Proxy server ($vm_size)..."
 az vm create \
   --resource-group $resource_group \
   --name $vm_proxy_name \
   --image Ubuntu2404 \
-  --size standard_b2ats_v2 \
+  --size $vm_size \
   --admin-username azureuser \
   --generate-ssh-keys \
   --vnet-name $vnet_name \
@@ -75,24 +82,39 @@ az vm create \
 
 # 7. Open Ports
 echo "Opening ports..."
-# We ONLY open port 80 on the Proxy (The Bouncer)
+# Only open port 80 on Proxy
 az vm open-port --resource-group $resource_group --name $vm_proxy_name --port 80
 
-# NOTE: We do NOT open port 80 on the Backend. It should remain locked!
-# az vm open-port --resource-group $resource_group --name $vm_web_name --port 80
+# 8. SETUP AUTO-SHUTDOWN (Saves Money!)
+echo "Configuring Auto-shutdown at 19:00 CET..."
+az vm auto-shutdown -g $resource_group -n $vm_web_name --time 1900 --email $my_email
+az vm auto-shutdown -g $resource_group -n $vm_proxy_name --time 1900 --email $my_email
 
-# 8. Fetch PUBLIC IP addresses for the report
+# 9. Fetch IP addresses for report
 proxy_public_ip=$(az vm show -d -g $resource_group -n $vm_proxy_name --query publicIps -o tsv)
 backend_public_ip=$(az vm show -d -g $resource_group -n $vm_web_name --query publicIps -o tsv)
 
-# Clean up the temporary file
+# Cleanup
 rm proxy_setup_ready.sh
 
 # --- FINAL REPORT ---
 echo ""
 echo "=================================================="
-echo "DEPLOYMENT COMPLETE!"
+echo "DEPLOYMENT COMPLETE! 🍄"
 echo "=================================================="
 echo ""
-echo "Here are your servers:"
-az vm list-ip-addresses -g $resource_group -o
+echo "Region: $location"
+echo "Size:   $vm_size (Budget Friendly)"
+echo "Shutdown: Scheduled for 19:00 daily"
+echo ""
+echo "Here are your connection details:"
+echo "--------------------------------------------------"
+echo "1. PROXY (FRONTEND) - The website is here:"
+echo "   http://$proxy_public_ip"
+echo ""
+echo "2. BACKEND (WEBSERVER) - Internal Only:"
+echo "   http://$backend_public_ip (Should not work publicly)"
+echo ""
+echo "   Admin Login (SSH):"
+echo "   ssh azureuser@$proxy_public_ip"
+echo "--------------------------------------------------"
