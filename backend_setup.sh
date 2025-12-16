@@ -1,20 +1,16 @@
 #!/bin/bash
 
-# 1. Update and install system tools
-# WE ADDED 'gunicorn' HERE instead of pip
+# 1. Update and install system tools AND Python libraries
+# VIKTIG ÄNDRING: Vi installerar Flask, CORS och Psycopg2 via APT istället för PIP
 apt-get update -y
-apt-get install -y python3-pip python3-dev libpq-dev postgresql postgresql-contrib nginx git gunicorn
+apt-get install -y python3-pip python3-dev libpq-dev postgresql postgresql-contrib nginx git gunicorn python3-flask python3-flask-cors python3-psycopg2
 
-# 2. Install Python libraries (Removed gunicorn from here)
-# We use --break-system-packages because Ubuntu 24.04 is strict, this forces the install
-pip3 install flask flask-cors psycopg2-binary --break-system-packages
-
-# 3. Setup Database (PostgreSQL)
+# 2. Setup Database (PostgreSQL)
 sudo -u postgres psql -c "CREATE DATABASE webinar_db;"
 sudo -u postgres psql -c "CREATE USER adminuser WITH PASSWORD 'Password123!';"
 sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE webinar_db TO adminuser;"
 
-# 4. Create the Python App (app.py)
+# 3. Create the Python App (app.py)
 cat <<EOF > /home/azureuser/app.py
 from flask import Flask, request, jsonify
 import psycopg2
@@ -70,12 +66,12 @@ def register():
         print(e)
         return jsonify({"message": "Error"}), 500
 
+# Gunicorn requires "app" object, not app.run()
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 EOF
 
-# 5. Create Systemd Service
-# UPDATED PATH FOR GUNICORN (/usr/bin/gunicorn)
+# 4. Create Systemd Service for GUNICORN
 cat <<EOF > /etc/systemd/system/webinar.service
 [Unit]
 Description=Gunicorn instance to serve webinar app
@@ -92,12 +88,12 @@ ExecStart=/usr/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 app:app
 WantedBy=multi-user.target
 EOF
 
-# 6. Start the Service
+# 5. Start the Service
 systemctl daemon-reload
 systemctl start webinar
 systemctl enable webinar
 
-# 7. Configure Nginx
+# 6. Configure Nginx
 cat <<EOF > /etc/nginx/sites-available/default
 server {
     listen 80;
