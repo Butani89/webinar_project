@@ -108,5 +108,6 @@ echo "2. BACKEND (WEBSERVER) - Internal Only:"
 echo "   http://$backend_public_ip (Should not work publicly)"
 echo ""
 echo "   Admin Login (SSH):"
-echo "   ssh azureuser@$proxy_public_ip"
+echo "   ssh azureuser@$backend_public_ip"
 echo "--------------------------------------------------"
+
