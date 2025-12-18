@@ -2,8 +2,14 @@ import os
 import sys
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 app = Flask(__name__)
+
+# Enable CORS for local development
+if os.environ.get('FLASK_ENV') == 'development':
+    CORS(app)
+    print("CORS enabled for development environment.")
 
 # Database settings
 db_host = os.environ.get('DB_HOST', 'localhost')

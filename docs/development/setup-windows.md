@@ -68,6 +68,7 @@ cd webinar_project
     ```powershell
     $env:DB_HOST="localhost"
     $env:DB_PASSWORD="Password123!"
+    $env:FLASK_ENV="development"
     ```
 
 5.  **Run App:**

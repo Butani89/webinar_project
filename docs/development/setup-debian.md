@@ -64,10 +64,11 @@ We need a local PostgreSQL database to run the backend.
     ```
 
 4.  **Configure Environment Variables:**
-    The application needs to know where the database is.
+    The application needs to know where the database is, and we need to enable CORS for local dev.
     ```bash
     export DB_HOST=localhost
     export DB_PASSWORD=Password123!
+    export FLASK_ENV=development
     ```
 
 5.  **Run the Application:**
