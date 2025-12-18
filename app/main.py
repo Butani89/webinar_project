@@ -25,6 +25,17 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 class Attendee(db.Model):
+    """Model representing an attendee in the database.
+
+    Attributes:
+        id (int): Unique identifier for the attendee.
+        name (str): Full name of the attendee.
+        email (str): Email address of the attendee.
+        company (str): Company or organization name (optional).
+        jobtitle (str): Job title (optional, legacy field).
+        experience (str): Attendee's experience level with mushrooms.
+        date (str): Selected webinar date.
+    """
     __tablename__ = 'attendees'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -41,6 +52,17 @@ with app.app_context():
 
 @app.route('/api/register', methods=['POST'])
 def register():
+    """Register a new attendee for the webinar.
+
+    Validates the input JSON payload, creates a new Attendee record,
+    and saves it to the database.
+
+    Returns:
+        tuple: A JSON response and an HTTP status code.
+            - 201: Success.
+            - 400: Missing required fields or invalid JSON.
+            - 500: Internal server error.
+    """
     data = request.get_json()
     
     if not data:
