@@ -6,6 +6,17 @@ We use **GitHub Actions** to automatically deploy infrastructure changes wheneve
 
 The workflow file is located at: `.github/workflows/deploy.yml`
 
+```mermaid
+flowchart LR
+    A[Push to Main] -->|Trigger| B(GitHub Action Start)
+    B --> C{Azure Login}
+    C -->|Success| D[Generate Secrets]
+    C -->|Fail| E[Stop Workflow]
+    D --> F[Deploy Bicep Template]
+    F -->|Updates Infrastructure| G[Azure Resource Group]
+    G --> H[VM Cloud-Init Config]
+```
+
 **Trigger:** Push to `main` branch.
 
 **Steps:**

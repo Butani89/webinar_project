@@ -39,6 +39,32 @@ graph TD;
     Bastion -- SSH Tunnel --> DB
 ```
 
+### Data Flow: User Registration
+
+The following sequence diagram illustrates how a user registration request travels through the system.
+
+```mermaid
+sequenceDiagram
+    participant U as User (Browser)
+    participant P as Nginx Proxy
+    participant B as Flask Backend
+    participant D as PostgreSQL DB
+
+    U->>P: POST /api/register (JSON)
+    Note right of U: HTTPS (Port 443)
+    P->>B: Proxy Request (HTTP Port 80, Internal)
+    B->>B: Validate Input
+    alt Invalid Input
+        B-->>P: 400 Bad Request
+        P-->>U: 400 Bad Request
+    else Valid Input
+        B->>D: INSERT INTO attendees...
+        D-->>B: Success
+        B-->>P: 201 Created
+        P-->>U: 201 Created
+    end
+```
+
 ## Components
 
 ### 1. Network & Security

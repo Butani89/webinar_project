@@ -25,6 +25,27 @@ Choose the setup guide for your operating system:
 
 ## 🛠 Workflow
 
+We follow a simple **Feature Branch** workflow.
+
+```mermaid
+gitGraph
+    commit
+    commit
+    branch feature/new-mushroom
+    checkout feature/new-mushroom
+    commit
+    commit
+    checkout main
+    merge feature/new-mushroom
+    commit
+    branch fix/login-error
+    checkout fix/login-error
+    commit
+    checkout main
+    merge fix/login-error
+    commit
+```
+
 1.  **Branching:** Create a new branch for every feature or bugfix (e.g., `feature/new-mushroom`, `fix/login-error`).
 2.  **Local Test:** Ensure the app runs locally using the instructions above.
 3.  **Pull Request:** Push your branch and create a PR to `main`.
