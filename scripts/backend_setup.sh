@@ -29,7 +29,7 @@ User=root
 WorkingDirectory=/var/www/html
 Environment="DB_HOST=${DB_HOST:-localhost}"
 Environment="DB_PASSWORD=${DB_PASSWORD}"
-ExecStart=/var/www/html/venv/bin/python3 app.py
+ExecStart=/var/www/html/venv/bin/python3 app/main.py
 Restart=always
 
 [Install]
@@ -45,7 +45,7 @@ cat <<EOF > /etc/nginx/sites-available/default
 server {
     listen 80;
     location / {
-        root /var/www/html;
+        root /var/www/html/app/static;
         index index.html;
         try_files \$uri \$uri/ =404;
     }

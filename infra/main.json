@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "7476465139097582913"
+      "templateHash": "17105916733787052432"
     }
   },
   "parameters": {
@@ -44,8 +44,8 @@
   },
   "variables": {
     "$fxv#0": "#!/bin/bash\n\n# 1. Update and Install\napt update\napt install postgresql postgresql-contrib -y\n\n# 2. Configure PostgreSQL to listen on all interfaces\n# Find the config file path (usually /etc/postgresql/15/main/postgresql.conf or similar depending on version)\n# We use a wildcard to catch the version number\nCONF_DIR=$(find /etc/postgresql -name main -type d | head -n 1)\n\nif [ -z \"$CONF_DIR\" ]; then\n    echo \"PostgreSQL configuration directory not found!\"\n    exit 1\nfi\n\necho \"Configuring PostgreSQL in $CONF_DIR...\"\n\n# Listen on all addresses\nsed -i \"s/#listen_addresses = 'localhost'/listen_addresses = '*'/\" \"$CONF_DIR/postgresql.conf\"\n\n# Allow access from the VNet (10.0.0.0/16)\necho \"host    all             all             10.0.0.0/16             scram-sha-256\" >> \"$CONF_DIR/pg_hba.conf\"\n\n# 3. Setup Database and User\nsystemctl restart postgresql\nsystemctl enable postgresql\n\nsudo -u postgres psql -c \"CREATE USER adminuser WITH PASSWORD 'PLACEHOLDER_DB_PASSWORD';\"\nsudo -u postgres psql -c \"CREATE DATABASE webinar_db OWNER adminuser;\"\n\necho \"Database setup complete.\"\n",
-    "$fxv#1": "#!/bin/bash\n\n# 1. Update and Install\napt update\napt install nginx git python3-full python3-pip python3-venv -y\n\n# 2. Get Website Files\nrm -rf /var/www/html/*\ngit clone https://github.com/Butani89/webinar_project.git /var/www/html/\n\n# 3. Setup Python Virtual Environment & Dependencies\ncd /var/www/html\npython3 -m venv venv\nsource venv/bin/activate\npip install -r requirements.txt\n\n# 4. Setup Python App Service\n# We expect DB_HOST to be set in the environment or passed to this script.\n# If not set, it defaults to localhost in the app code, but we want to inject it here.\n# The provision_vm.sh will likely prepend \"export DB_HOST=...\" before running this.\n\ncat <<EOF > /etc/systemd/system/webinar.service\n[Unit]\nDescription=Webinar Python App\nAfter=network.target\n\n[Service]\nUser=root\nWorkingDirectory=/var/www/html\nEnvironment=\"DB_HOST=${DB_HOST:-localhost}\"\nEnvironment=\"DB_PASSWORD=${DB_PASSWORD}\"\nExecStart=/var/www/html/venv/bin/python3 app.py\nRestart=always\n\n[Install]\nWantedBy=multi-user.target\nEOF\n\nsystemctl daemon-reload\nsystemctl start webinar\nsystemctl enable webinar\n\n# 5. Configure Local Nginx (Backend)\ncat <<EOF > /etc/nginx/sites-available/default\nserver {\n    listen 80;\n    location / {\n        root /var/www/html;\n        index index.html;\n        try_files \\$uri \\$uri/ =404;\n    }\n    location /api/ {\n        proxy_pass http://127.0.0.1:5000;\n        proxy_set_header Host \\$host;\n        proxy_set_header X-Real-IP \\$remote_addr;\n    }\n}\nEOF\n\nsystemctl restart nginx",
-    "$fxv#2": "#!/bin/bash\napt update\napt install nginx certbot python3-certbot-nginx -y\n\n# Create DuckDNS update script\ncat <<DUCK > /usr/local/bin/duckdns_update.sh\n#!/bin/bash\ncurl \"https://www.duckdns.org/update?domains=webinar-funtime-deluxe&token={0}&ip=\"\nDUCK\nchmod +x /usr/local/bin/duckdns_update.sh\n\n# Run it once immediately\n/usr/local/bin/duckdns_update.sh\n\n# Setup Cron jobs\n# 1. Update DuckDNS every 5 minutes\n# 2. Renew Certbot every 12 hours\n(crontab -l 2>/dev/null; echo \"*/5 * * * * /usr/local/bin/duckdns_update.sh\") | crontab -\n(crontab -l 2>/dev/null; echo \"0 */12 * * * certbot renew --quiet\") | crontab -\n\ncat <<NGINXCONF > /etc/nginx/sites-available/default\nserver {\n    listen 80;\n    server_name webinar-funtime-deluxe.duckdns.org;\n    location / {\n        proxy_pass http://{1};\n        proxy_set_header Host \\$host;\n        proxy_set_header X-Real-IP \\$remote_addr;\n    }\n}\nNGINXCONF\n\nsystemctl restart nginx\n\n# Request Certificate and redirect HTTP to HTTPS\ncertbot --nginx -d webinar-funtime-deluxe.duckdns.org --non-interactive --agree-tos --register-unsafely-without-email --redirect\n",
+    "$fxv#1": "#!/bin/bash\r\n\r\n# 1. Update and Install\r\napt update\r\napt install nginx git python3-full python3-pip python3-venv -y\r\n\r\n# 2. Get Website Files\r\nrm -rf /var/www/html/*\r\ngit clone https://github.com/Butani89/webinar_project.git /var/www/html/\r\n\r\n# 3. Setup Python Virtual Environment & Dependencies\r\ncd /var/www/html\r\npython3 -m venv venv\r\nsource venv/bin/activate\r\npip install -r requirements.txt\r\n\r\n# 4. Setup Python App Service\r\n# We expect DB_HOST to be set in the environment or passed to this script.\r\n# If not set, it defaults to localhost in the app code, but we want to inject it here.\r\n# The provision_vm.sh will likely prepend \"export DB_HOST=...\" before running this.\r\n\r\ncat <<EOF > /etc/systemd/system/webinar.service\r\n[Unit]\r\nDescription=Webinar Python App\r\nAfter=network.target\r\n\r\n[Service]\r\nUser=root\r\nWorkingDirectory=/var/www/html\r\nEnvironment=\"DB_HOST=${DB_HOST:-localhost}\"\r\nEnvironment=\"DB_PASSWORD=${DB_PASSWORD}\"\r\nExecStart=/var/www/html/venv/bin/python3 app/main.py\r\nRestart=always\r\n\r\n[Install]\r\nWantedBy=multi-user.target\r\nEOF\r\n\r\nsystemctl daemon-reload\r\nsystemctl start webinar\r\nsystemctl enable webinar\r\n\r\n# 5. Configure Local Nginx (Backend)\r\ncat <<EOF > /etc/nginx/sites-available/default\r\nserver {\r\n    listen 80;\r\n    location / {\r\n        root /var/www/html/app/static;\r\n        index index.html;\r\n        try_files \\$uri \\$uri/ =404;\r\n    }\r\n    location /api/ {\r\n        proxy_pass http://127.0.0.1:5000;\r\n        proxy_set_header Host \\$host;\r\n        proxy_set_header X-Real-IP \\$remote_addr;\r\n    }\r\n}\r\nEOF\r\n\r\nsystemctl restart nginx\r\n",
+    "$fxv#2": "#!/bin/bash\napt update\napt install nginx certbot python3-certbot-nginx -y\n\n# Create DuckDNS update script\ncat <<DUCK > /usr/local/bin/duckdns_update.sh\n#!/bin/bash\ncurl \"https://www.duckdns.org/update?domains=webinar-funtime-deluxe&token=__DUCKDNS_TOKEN__&ip=\"\nDUCK\nchmod +x /usr/local/bin/duckdns_update.sh\n\n# Run it once immediately\n/usr/local/bin/duckdns_update.sh\n\n# WAIT for DNS propagation (Essential for Certbot validation)\necho \"Waiting 60 seconds for DNS propagation...\"\nsleep 60\n\n# Setup Cron jobs\n# 1. Update DuckDNS every 5 minutes\n# 2. Renew Certbot every 12 hours\n(crontab -l 2>/dev/null; echo \"*/5 * * * * /usr/local/bin/duckdns_update.sh\") | crontab -\n(crontab -l 2>/dev/null; echo \"0 */12 * * * certbot renew --quiet\") | crontab -\n\ncat <<NGINXCONF > /etc/nginx/sites-available/default\nserver {\n    listen 80;\n    server_name webinar-funtime-deluxe.duckdns.org;\n    location / {\n        proxy_pass http://__BACKEND_IP__;\n        proxy_set_header Host \\$host;\n        proxy_set_header X-Real-IP \\$remote_addr;\n    }\n}\nNGINXCONF\n\nsystemctl restart nginx\n\n# Request Certificate and redirect HTTP to HTTPS with Retry Logic\nfor i in {1..5}; do\n  echo \"Attempt $i to obtain SSL certificate...\"\n  certbot --nginx -d webinar-funtime-deluxe.duckdns.org --non-interactive --agree-tos --register-unsafely-without-email --redirect && break\n  echo \"Certbot failed, retrying in 30s...\"\n  sleep 30\ndone\n",
     "vnetName": "SvampVNet",
     "subnetName": "SvampSubnet",
     "vnetAddressPrefix": "10.0.0.0/16",
@@ -284,7 +284,7 @@
       "location": "[parameters('location')]",
       "properties": {
         "hardwareProfile": {
-          "vmSize": "Standard_B2ats_v2"
+          "vmSize": "Standard_B2s_v2"
         },
         "storageProfile": {
           "osDisk": {
@@ -335,7 +335,7 @@
       "location": "[parameters('location')]",
       "properties": {
         "hardwareProfile": {
-          "vmSize": "Standard_B2ats_v2"
+          "vmSize": "Standard_B2s_v2"
         },
         "storageProfile": {
           "osDisk": {
@@ -345,9 +345,9 @@
             }
           },
           "imageReference": {
-            "publisher": "Canonical",
-            "offer": "ubuntu-24_04-lts",
-            "sku": "server",
+            "publisher": "Debian",
+            "offer": "debian-13",
+            "sku": "13",
             "version": "latest"
           }
         },
@@ -388,7 +388,7 @@
       "location": "[parameters('location')]",
       "properties": {
         "hardwareProfile": {
-          "vmSize": "Standard_B2ats_v2"
+          "vmSize": "Standard_B2s_v2"
         },
         "storageProfile": {
           "osDisk": {
@@ -398,9 +398,9 @@
             }
           },
           "imageReference": {
-            "publisher": "Canonical",
-            "offer": "ubuntu-24_04-lts",
-            "sku": "server",
+            "publisher": "Debian",
+            "offer": "debian-13",
+            "sku": "13",
             "version": "latest"
           }
         },
@@ -425,7 +425,7 @@
               ]
             }
           },
-          "customData": "[base64(format(variables('$fxv#2'), parameters('duckDnsToken'), reference(resourceId('Microsoft.Network/networkInterfaces', 'BackendVM-nic'), '2021-02-01').ipConfigurations[0].properties.privateIPAddress))]"
+          "customData": "[base64(replace(replace(variables('$fxv#2'), '__DUCKDNS_TOKEN__', parameters('duckDnsToken')), '__BACKEND_IP__', reference(resourceId('Microsoft.Network/networkInterfaces', 'BackendVM-nic'), '2021-02-01').ipConfigurations[0].properties.privateIPAddress))]"
         }
       },
       "dependsOn": [
@@ -441,7 +441,7 @@
       "location": "[parameters('location')]",
       "properties": {
         "hardwareProfile": {
-          "vmSize": "Standard_B2ats_v2"
+          "vmSize": "Standard_B2s_v2"
         },
         "storageProfile": {
           "osDisk": {

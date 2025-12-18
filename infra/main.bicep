@@ -267,7 +267,7 @@ resource dbVm 'Microsoft.Compute/virtualMachines@2021-07-01' = {
         }
       }
       // Inject Password into placeholder
-      customData: base64(replace(loadTextContent('../db_setup.sh'), 'PLACEHOLDER_DB_PASSWORD', dbPassword))
+      customData: base64(replace(loadTextContent('../scripts/db_setup.sh'), 'PLACEHOLDER_DB_PASSWORD', dbPassword))
     }
   }
 }
@@ -316,7 +316,7 @@ resource backendVm 'Microsoft.Compute/virtualMachines@2021-07-01' = {
         }
       }
       // Inject DB Host (Private IP) and Password
-      customData: base64(format('#!/bin/bash\nexport DB_HOST="{0}"\nexport DB_PASSWORD="{1}"\n{2}', dbNic.properties.ipConfigurations[0].properties.privateIPAddress, dbPassword, loadTextContent('../backend_setup.sh')))
+      customData: base64(format('#!/bin/bash\nexport DB_HOST="{0}"\nexport DB_PASSWORD="{1}"\n{2}', dbNic.properties.ipConfigurations[0].properties.privateIPAddress, dbPassword, loadTextContent('../scripts/backend_setup.sh')))
     }
   }
   dependsOn: [
