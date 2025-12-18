@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -6,7 +7,8 @@ app = Flask(__name__)
 CORS(app)
 
 # Database settings
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://adminuser:Password123!@localhost/webinar_db'
+db_host = os.environ.get('DB_HOST', 'localhost')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://adminuser:Password123!@{db_host}/webinar_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
