@@ -19,6 +19,8 @@ flowchart LR
 
 **Trigger:** Push to `main` branch.
 
+**Important Note:** This CI/CD pipeline is designed for **infrastructure deployment** (Bicep templates). It will ensure your Azure resources match your Bicep definitions. However, it does *not* automatically update application code on existing running Virtual Machines. For **application code updates**, refer to the "Deploying Code Changes" section in the [Developer Guide](../../DEVELOPER_GUIDE.md).
+
 **Steps:**
 1.  **Checkout Code:** Pulls the latest repository version.
 2.  **Azure Login:** Authenticates using a Service Principal (Secret-based).
