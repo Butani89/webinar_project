@@ -37,7 +37,7 @@ def init_db():
 # Runs when the server starts
 init_db()
 
-@app.route('/register', methods=['POST'])
+@app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
     try:
