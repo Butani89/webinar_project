@@ -90,5 +90,29 @@ def register():
         print(f"Error registering attendee: {e}")
         return jsonify({"message": "Internal Server Error"}), 500
 
+@app.route('/api/attendees', methods=['GET'])
+def get_attendees():
+    """Fetch all registered attendees.
+
+    Returns:
+        tuple: A JSON list of attendees and HTTP 200 status.
+    """
+    try:
+        attendees = Attendee.query.order_by(Attendee.id.desc()).all()
+        result = []
+        for attendee in attendees:
+            result.append({
+                "id": attendee.id,
+                "name": attendee.name,
+                "email": attendee.email,
+                "company": attendee.company,
+                "experience": attendee.experience,
+                "date": attendee.date
+            })
+        return jsonify(result), 200
+    except Exception as e:
+        print(f"Error fetching attendees: {e}")
+        return jsonify({"message": "Internal Server Error"}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
