@@ -2,34 +2,40 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2025-12-18] - Infrastructure & Security Overhaul
-
-### Security
-- **Secrets Management:** Removed all hardcoded credentials (Database passwords, DuckDNS tokens) from source code and scripts.
-- **Secret Injection:** Implemented secure injection of generated secrets into VMs using Azure Bicep `customData` and environment variables.
-- **Backend Hardening:** 
-    - Implemented strict server-side input validation on the `/api/register` endpoint.
-    - Removed permissive `CORS(app)` configuration; the application now relies on Nginx for same-origin proxying.
-    - Added error handling to return specific HTTP 400 status codes for bad requests.
+## [2025-12-18] - Architecture, Infrastructure & Security Overhaul
 
 ### Infrastructure
-- **IaC Migration:** Replaced imperative `provision_vm.sh` script with declarative **Azure Bicep** templates (`infra/main.bicep`).
-- **OS Consolidation:** Standardized all Virtual Machines (Bastion, Proxy, Backend, Database) to run **Debian 13**.
-- **Network Security:** 
-    - Configured Network Security Groups (NSGs) to strictly limit access (SSH only via Bastion, HTTP/HTTPS only on Proxy).
-- **SSL/TLS:** 
-    - Integrated **Certbot** for automatic SSL certificate generation and renewal on the Nginx proxy.
-    - Added retry logic to Certbot setup to handle DNS propagation delays.
-    - Configured DuckDNS dynamic IP updates via cron jobs (running every 5 minutes).
+- **OS Consolidation:** Consolidated all Virtual Machines (Bastion, Proxy, Backend, Database) to use **Debian 13** for consistency and stability.
+- **IaC Migration:** Fully migrated from imperative shell scripts (`provision_vm.sh`) to declarative **Azure Bicep** templates (`infra/main.bicep`). Removed the legacy `provision_vm.sh` script.
+- **Network Security:** Implemented the **Bastion Pattern**. Traffic is now locked down:
+    - SSH is only allowed via the Bastion Host.
+    - Database and Backend VMs are isolated in the private VNet with no direct public internet access.
+    - The Proxy VM handles all incoming HTTP/HTTPS traffic.
+- **SSL & DNS:** Configured automatic DuckDNS updates and Certbot SSL certificate generation on the Proxy VM.
 
 ### CI/CD
-- **GitHub Actions:** Added `.github/workflows/deploy.yml` to automate infrastructure deployment on push to `main`.
-- **Authentication:** Configured Azure Service Principal with OpenID Connect (OIDC) and Secret-based authentication for secure CI/CD operations.
+- **GitHub Actions:** Created a deployment pipeline (`.github/workflows/deploy.yml`) that triggers on push to `main`.
+- **Authentication:** Configured Azure Service Principal authentication with Client Secrets for secure, automated deployments.
 
-### Application
-- **Database Model:** Refactored the `Attendee` model to store `experience` and `date` in separate columns instead of a combined string.
-- **Frontend:** Updated `script.js` to send structured JSON data matching the new backend schema.
+### Backend (Python/Flask)
+- **ORM Migration:** Refactored `app.py` to use **SQLAlchemy ORM** instead of raw SQL queries, improving security against injection attacks.
+- **Input Validation:** Added robust input validation for the `/api/register` endpoint.
+- **Data Model:** Updated the database schema to store `experience` and `date` in dedicated columns.
+- **Security:** Removed permissive CORS configuration (relying on Nginx reverse proxy instead).
+
+### Architecture
+- **Decoupling:** Formally decoupled the Database from the App Server, moving PostgreSQL to its own dedicated Virtual Machine (`DatabaseVM`).
 
 ### Documentation
-- **Updated README.md:** Reflected the change to Debian 13, Bicep deployment steps, and new architecture details.
-- **Added CI_CD.md:** Created a comprehensive guide for setting up GitHub Actions secrets and workflow.
+- **Deployment Guide:** Added a comprehensive deployment guide to `README.md`.
+- **CI/CD Guide:** Added `CI_CD.md` detailing the secrets and setup required for GitHub Actions.
+- **Changelog:** Initialized this changelog to track project history.
+
+## [2025-12-16] - Provisioning Stabilization
+- **Script Updates:** Multiple iterative updates to `provision_vm.sh` and `backend_setup.sh` to fix environment variable injection and package dependencies during the initial Azure testing phase.
+
+## [2025-12-11] - Initial Release
+- **Project Upload:** Initial upload of the core application files (`app.py`, `index.html`, `style.css`, `script.js`).
+
+## [2025-12-04] - Frontend Development
+- **UI/UX:** Initial development of the frontend interface, including styling and script logic.
