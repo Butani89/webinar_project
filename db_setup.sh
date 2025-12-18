@@ -26,7 +26,7 @@ echo "host    all             all             10.0.0.0/16             scram-sha-
 systemctl restart postgresql
 systemctl enable postgresql
 
-sudo -u postgres psql -c "CREATE USER adminuser WITH PASSWORD 'Password123!';"
+sudo -u postgres psql -c "CREATE USER adminuser WITH PASSWORD 'PLACEHOLDER_DB_PASSWORD';"
 sudo -u postgres psql -c "CREATE DATABASE webinar_db OWNER adminuser;"
 
 echo "Database setup complete."

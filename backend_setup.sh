@@ -28,6 +28,7 @@ After=network.target
 User=root
 WorkingDirectory=/var/www/html
 Environment="DB_HOST=${DB_HOST:-localhost}"
+Environment="DB_PASSWORD=${DB_PASSWORD}"
 ExecStart=/var/www/html/venv/bin/python3 app.py
 Restart=always
 

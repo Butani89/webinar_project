@@ -46,10 +46,11 @@ function handleWebinarRegistration(event) {
     const email = document.getElementById('email').value;
     const company = document.getElementById('company').value || "Privat";
     
-    // Vi bakar in datum och erfarenhet i "jobtitle"-fältet för databasen
+    // Vi skickar nu erfarenhet och datum separat för bättre datastruktur
     const experience = document.getElementById('experience').value || "Intresserad";
     const date = document.getElementById('date').value;
-    const jobtitle = `${experience} (Datum: ${date})`;
+    // jobtitle kan vara tomt eller användas för något annat i framtiden
+    const jobtitle = ""; 
 
     submitBtn.textContent = "Skickar...";
     submitBtn.disabled = true;
@@ -58,7 +59,7 @@ function handleWebinarRegistration(event) {
     fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, company, jobtitle }),
+        body: JSON.stringify({ name, email, company, experience, date, jobtitle }),
     })
     .then(response => {
         if (response.ok) {

@@ -44,8 +44,8 @@ graph TD;
 
 ### VM Roles
 
--   `FrontendProxyVM`: An Ubuntu VM running Nginx as a reverse proxy. It's the only machine that accepts public web traffic (Port 80) and forwards it to the `BackendVM`.
--   `BackendVM`: An Ubuntu VM running the Python Flask application. It processes requests and communicates with the `DatabaseVM`. It is not directly accessible from the internet.
+-   `FrontendProxyVM`: A Debian 13 VM running Nginx as a reverse proxy. It's the only machine that accepts public web traffic (Port 80/443) and forwards it to the `BackendVM`.
+-   `BackendVM`: A Debian 13 VM running the Python Flask application. It processes requests and communicates with the `DatabaseVM`. It is not directly accessible from the internet.
 -   `DatabaseVM`: A Debian 13 VM running PostgreSQL. It stores all application data and is only accessible from within the VNet.
 -   `bastionVM`: A Debian 13 VM that serves as a secure jump-box. It's the only machine that accepts SSH traffic from the internet, providing a secure entry point for administrators.
 
@@ -108,24 +108,24 @@ Open `index.html` in your web browser.
 
 ### 2. Production Deployment (Azure)
 
-We use **Infrastructure as Code (IaC)** to provision the entire stack on Azure. The `provision_vm.sh` script automates the creation of the Resource Group, VNet, Subnet, and all 4 Virtual Machines.
+We use **Infrastructure as Code (IaC)** to provision the entire stack on Azure. The `deploy.sh` script automates the creation of the Resource Group, VNet, Subnet, and all 4 Virtual Machines using Azure Bicep.
 
 #### Prerequisites
 -   **Azure CLI**: [Install Guide](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 -   **Azure Subscription**: You must be logged in (`az login`).
 
-#### Step 1: Run the Provisioning Script
-This script creates the `SvamparnasRG` resource group and deploys the `bastionVM`, `FrontendProxyVM`, `BackendVM`, and `DatabaseVM`.
+#### Step 1: Run the Deployment Script
+This script creates the `SvamparnasRG_Prod` resource group and deploys the `bastionVM`, `FrontendProxyVM`, `BackendVM`, and `DatabaseVM`.
 
 ```bash
-./provision_vm.sh
+./deploy.sh
 ```
 *Duration: Approximately 5-10 minutes.*
 
 #### Step 2: Access the Application
 Once the script completes, it will output a table of IP addresses.
 1.  Copy the **Proxy Public IP**.
-2.  Open your web browser and navigate to `http://<PROXY_PUBLIC_IP>`.
+2.  Open your web browser and navigate to `https://webinar-funtime-deluxe.duckdns.org` (or the IP if DNS hasn't propagated).
 3.  You should see the "Svamparnas Värld" webinar page.
 
 #### Step 3: Secure Administrative Access
@@ -145,5 +145,5 @@ To manage the internal servers (`BackendVM` or `DatabaseVM`), you must tunnel th
 #### Step 4: Teardown
 To remove all resources and stop billing:
 ```bash
-az group delete --name SvamparnasRG --no-wait --yes
+az group delete --name SvamparnasRG_Prod --no-wait --yes
 ```

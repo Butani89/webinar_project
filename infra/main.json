@@ -1,0 +1,502 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.39.26.7824",
+      "templateHash": "7476465139097582913"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "azureuser",
+      "metadata": {
+        "description": "Username for the Virtual Machine"
+      }
+    },
+    "adminPublicKey": {
+      "type": "string",
+      "metadata": {
+        "description": "SSH Public Key for the Virtual Machine"
+      }
+    },
+    "dbPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Database Password"
+      }
+    },
+    "duckDnsToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "DuckDNS Token"
+      }
+    }
+  },
+  "variables": {
+    "$fxv#0": "#!/bin/bash\n\n# 1. Update and Install\napt update\napt install postgresql postgresql-contrib -y\n\n# 2. Configure PostgreSQL to listen on all interfaces\n# Find the config file path (usually /etc/postgresql/15/main/postgresql.conf or similar depending on version)\n# We use a wildcard to catch the version number\nCONF_DIR=$(find /etc/postgresql -name main -type d | head -n 1)\n\nif [ -z \"$CONF_DIR\" ]; then\n    echo \"PostgreSQL configuration directory not found!\"\n    exit 1\nfi\n\necho \"Configuring PostgreSQL in $CONF_DIR...\"\n\n# Listen on all addresses\nsed -i \"s/#listen_addresses = 'localhost'/listen_addresses = '*'/\" \"$CONF_DIR/postgresql.conf\"\n\n# Allow access from the VNet (10.0.0.0/16)\necho \"host    all             all             10.0.0.0/16             scram-sha-256\" >> \"$CONF_DIR/pg_hba.conf\"\n\n# 3. Setup Database and User\nsystemctl restart postgresql\nsystemctl enable postgresql\n\nsudo -u postgres psql -c \"CREATE USER adminuser WITH PASSWORD 'PLACEHOLDER_DB_PASSWORD';\"\nsudo -u postgres psql -c \"CREATE DATABASE webinar_db OWNER adminuser;\"\n\necho \"Database setup complete.\"\n",
+    "$fxv#1": "#!/bin/bash\n\n# 1. Update and Install\napt update\napt install nginx git python3-full python3-pip python3-venv -y\n\n# 2. Get Website Files\nrm -rf /var/www/html/*\ngit clone https://github.com/Butani89/webinar_project.git /var/www/html/\n\n# 3. Setup Python Virtual Environment & Dependencies\ncd /var/www/html\npython3 -m venv venv\nsource venv/bin/activate\npip install -r requirements.txt\n\n# 4. Setup Python App Service\n# We expect DB_HOST to be set in the environment or passed to this script.\n# If not set, it defaults to localhost in the app code, but we want to inject it here.\n# The provision_vm.sh will likely prepend \"export DB_HOST=...\" before running this.\n\ncat <<EOF > /etc/systemd/system/webinar.service\n[Unit]\nDescription=Webinar Python App\nAfter=network.target\n\n[Service]\nUser=root\nWorkingDirectory=/var/www/html\nEnvironment=\"DB_HOST=${DB_HOST:-localhost}\"\nEnvironment=\"DB_PASSWORD=${DB_PASSWORD}\"\nExecStart=/var/www/html/venv/bin/python3 app.py\nRestart=always\n\n[Install]\nWantedBy=multi-user.target\nEOF\n\nsystemctl daemon-reload\nsystemctl start webinar\nsystemctl enable webinar\n\n# 5. Configure Local Nginx (Backend)\ncat <<EOF > /etc/nginx/sites-available/default\nserver {\n    listen 80;\n    location / {\n        root /var/www/html;\n        index index.html;\n        try_files \\$uri \\$uri/ =404;\n    }\n    location /api/ {\n        proxy_pass http://127.0.0.1:5000;\n        proxy_set_header Host \\$host;\n        proxy_set_header X-Real-IP \\$remote_addr;\n    }\n}\nEOF\n\nsystemctl restart nginx",
+    "$fxv#2": "#!/bin/bash\napt update\napt install nginx certbot python3-certbot-nginx -y\n\n# Create DuckDNS update script\ncat <<DUCK > /usr/local/bin/duckdns_update.sh\n#!/bin/bash\ncurl \"https://www.duckdns.org/update?domains=webinar-funtime-deluxe&token={0}&ip=\"\nDUCK\nchmod +x /usr/local/bin/duckdns_update.sh\n\n# Run it once immediately\n/usr/local/bin/duckdns_update.sh\n\n# Setup Cron jobs\n# 1. Update DuckDNS every 5 minutes\n# 2. Renew Certbot every 12 hours\n(crontab -l 2>/dev/null; echo \"*/5 * * * * /usr/local/bin/duckdns_update.sh\") | crontab -\n(crontab -l 2>/dev/null; echo \"0 */12 * * * certbot renew --quiet\") | crontab -\n\ncat <<NGINXCONF > /etc/nginx/sites-available/default\nserver {\n    listen 80;\n    server_name webinar-funtime-deluxe.duckdns.org;\n    location / {\n        proxy_pass http://{1};\n        proxy_set_header Host \\$host;\n        proxy_set_header X-Real-IP \\$remote_addr;\n    }\n}\nNGINXCONF\n\nsystemctl restart nginx\n\n# Request Certificate and redirect HTTP to HTTPS\ncertbot --nginx -d webinar-funtime-deluxe.duckdns.org --non-interactive --agree-tos --register-unsafely-without-email --redirect\n",
+    "vnetName": "SvampVNet",
+    "subnetName": "SvampSubnet",
+    "vnetAddressPrefix": "10.0.0.0/16",
+    "subnetAddressPrefix": "10.0.1.0/24"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2021-02-01",
+      "name": "[variables('vnetName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('vnetAddressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnetAddressPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2021-02-01",
+      "name": "ProxyNSG",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowHTTP",
+            "properties": {
+              "priority": 100,
+              "protocol": "Tcp",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "80"
+            }
+          },
+          {
+            "name": "AllowHTTPS",
+            "properties": {
+              "priority": 101,
+              "protocol": "Tcp",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "443"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2021-02-01",
+      "name": "BastionNSG",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowSSH",
+            "properties": {
+              "priority": 100,
+              "protocol": "Tcp",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "22"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2021-02-01",
+      "name": "InternalNSG",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": []
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2021-02-01",
+      "name": "FrontendProxyVM-ip",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static"
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2021-02-01",
+      "name": "BastionVM-ip",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2021-02-01",
+      "name": "DatabaseVM-nic",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '2021-02-01').subnets[0].id]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'InternalNSG')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'InternalNSG')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2021-02-01",
+      "name": "BackendVM-nic",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '2021-02-01').subnets[0].id]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'InternalNSG')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'InternalNSG')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2021-02-01",
+      "name": "FrontendProxyVM-nic",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '2021-02-01').subnets[0].id]"
+              },
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'FrontendProxyVM-ip')]"
+              }
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'ProxyNSG')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'ProxyNSG')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', 'FrontendProxyVM-ip')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2021-02-01",
+      "name": "BastionVM-nic",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '2021-02-01').subnets[0].id]"
+              },
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'BastionVM-ip')]"
+              }
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'BastionNSG')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'BastionNSG')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', 'BastionVM-ip')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2021-07-01",
+      "name": "DatabaseVM",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B2ats_v2"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
+          },
+          "imageReference": {
+            "publisher": "Debian",
+            "offer": "debian-13",
+            "sku": "13",
+            "version": "latest"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'DatabaseVM-nic')]"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "DatabaseVM",
+          "adminUsername": "[parameters('adminUsername')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": true,
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername'))]",
+                  "keyData": "[parameters('adminPublicKey')]"
+                }
+              ]
+            }
+          },
+          "customData": "[base64(replace(variables('$fxv#0'), 'PLACEHOLDER_DB_PASSWORD', parameters('dbPassword')))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', 'DatabaseVM-nic')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2021-07-01",
+      "name": "BackendVM",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B2ats_v2"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
+          },
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "ubuntu-24_04-lts",
+            "sku": "server",
+            "version": "latest"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'BackendVM-nic')]"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "BackendVM",
+          "adminUsername": "[parameters('adminUsername')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": true,
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername'))]",
+                  "keyData": "[parameters('adminPublicKey')]"
+                }
+              ]
+            }
+          },
+          "customData": "[base64(format('#!/bin/bash\nexport DB_HOST=\"{0}\"\nexport DB_PASSWORD=\"{1}\"\n{2}', reference(resourceId('Microsoft.Network/networkInterfaces', 'DatabaseVM-nic'), '2021-02-01').ipConfigurations[0].properties.privateIPAddress, parameters('dbPassword'), variables('$fxv#1')))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', 'BackendVM-nic')]",
+        "[resourceId('Microsoft.Network/networkInterfaces', 'DatabaseVM-nic')]",
+        "[resourceId('Microsoft.Compute/virtualMachines', 'DatabaseVM')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2021-07-01",
+      "name": "FrontendProxyVM",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B2ats_v2"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
+          },
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "ubuntu-24_04-lts",
+            "sku": "server",
+            "version": "latest"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'FrontendProxyVM-nic')]"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "FrontendProxyVM",
+          "adminUsername": "[parameters('adminUsername')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": true,
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername'))]",
+                  "keyData": "[parameters('adminPublicKey')]"
+                }
+              ]
+            }
+          },
+          "customData": "[base64(format(variables('$fxv#2'), parameters('duckDnsToken'), reference(resourceId('Microsoft.Network/networkInterfaces', 'BackendVM-nic'), '2021-02-01').ipConfigurations[0].properties.privateIPAddress))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', 'BackendVM-nic')]",
+        "[resourceId('Microsoft.Compute/virtualMachines', 'BackendVM')]",
+        "[resourceId('Microsoft.Network/networkInterfaces', 'FrontendProxyVM-nic')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2021-07-01",
+      "name": "bastionVM",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B2ats_v2"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
+          },
+          "imageReference": {
+            "publisher": "Debian",
+            "offer": "debian-13",
+            "sku": "13",
+            "version": "latest"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'BastionVM-nic')]"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "bastionVM",
+          "adminUsername": "[parameters('adminUsername')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": true,
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername'))]",
+                  "keyData": "[parameters('adminPublicKey')]"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', 'BastionVM-nic')]"
+      ]
+    }
+  ],
+  "outputs": {
+    "bastionPublicIp": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', 'BastionVM-ip'), '2021-02-01').ipAddress]"
+    },
+    "proxyPublicIp": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', 'FrontendProxyVM-ip'), '2021-02-01').ipAddress]"
+    },
+    "dbPrivateIp": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', 'DatabaseVM-nic'), '2021-02-01').ipConfigurations[0].properties.privateIPAddress]"
+    }
+  }
+}
