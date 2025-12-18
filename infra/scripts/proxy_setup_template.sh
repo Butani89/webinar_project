@@ -1,6 +1,6 @@
 #!/bin/bash
 apt update
-apt install nginx certbot python3-certbot-nginx -y
+apt install nginx certbot python3-certbot-nginx cron -y
 
 # Create DuckDNS update script
 cat <<DUCK > /usr/local/bin/duckdns_update.sh
