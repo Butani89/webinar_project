@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [2025-12-18] - Frontend Content Update & Deployment Automation
 
 ### Frontend
+- **Page Metadata:** Added comprehensive meta tags (`description`, `keywords`, `author`, Open Graph, Twitter Cards) and improved the `<title>` for better SEO and social sharing.
 - **Webinar Subject Change:** Updated the main webinar subject and description in `index.html` to: "Svamparnas Otroliga Liv: En djupdykning i myceliets psykologi och hur vi kan skapa musik tillsammans".
 
 ### CI/CD
