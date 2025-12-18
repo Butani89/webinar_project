@@ -51,90 +51,99 @@ graph TD;
 
 ---
 
-## Infrastructure Deployment (Azure)
+## Deployment Guide
 
-The entire infrastructure can be deployed with a single script.
+This section covers how to set up the project locally for development and how to deploy it to a production-like environment on Azure.
 
-### Prerequisites
+### 1. Local Development Environment (Linux)
 
--   [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed and configured.
--   An active Azure subscription.
--   You must be logged in via `az login`.
+Follow these steps to run the application on a local Linux machine (e.g., Ubuntu/Debian).
 
-### How to Deploy
+#### Prerequisites
+Install the necessary system packages:
+```bash
+sudo apt update
+sudo apt install python3 python3-pip python3-venv postgresql postgresql-contrib libpq-dev git -y
+```
 
-Run the provisioning script from the root of the project:
+#### Step 1: Clone the Repository
+```bash
+git clone git@github.com:Butani89/webinar_project.git
+cd webinar_project
+```
+
+#### Step 2: Configure the Database
+Start the PostgreSQL service and create the dedicated user and database.
+
+```bash
+sudo systemctl start postgresql
+sudo -u postgres psql -c "CREATE USER adminuser WITH PASSWORD 'Password123!';"
+sudo -u postgres psql -c "CREATE DATABASE webinar_db OWNER adminuser;"
+```
+
+#### Step 3: Set Up Python Environment
+Create a virtual environment to isolate dependencies.
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+#### Step 4: Run the Application
+The application expects the `DB_HOST` environment variable. For local dev, we point it to `localhost`.
+
+```bash
+export DB_HOST=localhost
+python3 app.py
+```
+
+The backend API will now be running at `http://localhost:5000`.
+
+#### Step 5: Verify
+Open `index.html` in your web browser.
+> **Note:** Since `script.js` targets `/api/register`, you might need to use a simple HTTP server or open the file directly. If running without Nginx locally, ensure your browser allows the request or that you are testing the backend via `curl`.
+
+---
+
+### 2. Production Deployment (Azure)
+
+We use **Infrastructure as Code (IaC)** to provision the entire stack on Azure. The `provision_vm.sh` script automates the creation of the Resource Group, VNet, Subnet, and all 4 Virtual Machines.
+
+#### Prerequisites
+-   **Azure CLI**: [Install Guide](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+-   **Azure Subscription**: You must be logged in (`az login`).
+
+#### Step 1: Run the Provisioning Script
+This script creates the `SvamparnasRG` resource group and deploys the `bastionVM`, `FrontendProxyVM`, `BackendVM`, and `DatabaseVM`.
 
 ```bash
 ./provision_vm.sh
 ```
+*Duration: Approximately 5-10 minutes.*
 
-The script will create all necessary resources, including the resource group, virtual network, and all four virtual machines. It will output the public IP addresses for the `bastionVM` and `FrontendProxyVM` upon completion.
+#### Step 2: Access the Application
+Once the script completes, it will output a table of IP addresses.
+1.  Copy the **Proxy Public IP**.
+2.  Open your web browser and navigate to `http://<PROXY_PUBLIC_IP>`.
+3.  You should see the "Svamparnas Värld" webinar page.
 
-### How to Access the Deployed Application
+#### Step 3: Secure Administrative Access
+To manage the internal servers (`BackendVM` or `DatabaseVM`), you must tunnel through the **Bastion Host**.
 
-1.  **Web Application**: Navigate to the public IP address of the `FrontendProxyVM` in your web browser.
-2.  **SSH / Administrative Access**:
-    -   First, SSH into the bastion host using its public IP:
-        ```bash
-        ssh azureuser@<BASTION_PUBLIC_IP>
-        ```
-    -   From the bastion host, you can then connect to any of the other VMs using their internal private IP addresses (which are listed in the final table of the provisioning script output). For example, to reach the BackendVM:
-        ```bash
-        ssh azureuser@<BACKEND_PRIVATE_IP>
-        ```
+1.  **Connect to Bastion:**
+    ```bash
+    ssh azureuser@<BASTION_PUBLIC_IP>
+    ```
+2.  **Jump to Internal VM:**
+    From the Bastion's terminal, SSH into the private IP of the target machine (displayed in the provisioning script output).
+    ```bash
+    # Example: Connect to Backend
+    ssh azureuser@10.0.1.x
+    ```
 
-### How to Destroy the Infrastructure
-
-To delete all created resources and avoid further charges, delete the entire resource group:
-
+#### Step 4: Teardown
+To remove all resources and stop billing:
 ```bash
 az group delete --name SvamparnasRG --no-wait --yes
 ```
-
----
-
-## Local Development
-
-You can run the Flask application on your local machine for development purposes.
-
-### Prerequisites
-
--   Python 3.10+
--   A running PostgreSQL server (can be installed locally or via Docker).
--   The `venv` module for Python.
-
-### Setup Instructions
-
-1.  **Clone the Repository**
-    ```bash
-    git clone https://github.com/Butani89/webinar_project.git
-    cd webinar_project
-    ```
-
-2.  **Create a Virtual Environment**
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate
-    ```
-
-3.  **Install Dependencies**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-4.  **Configure the Database**
-    -   Make sure your local PostgreSQL server is running.
-    -   Create a user (`adminuser`) and a database (`webinar_db`) matching the credentials in `app.py`.
-    -   Alternatively, you can change the `SQLALCHEMY_DATABASE_URI` in `app.py` to match your local setup.
-
-5.  **Run the Application**
-    Set the `DB_HOST` environment variable to `localhost` and run the Flask app:
-    ```bash
-    export DB_HOST=localhost
-    python3 app.py
-    ```
-    The application will be running at `http://localhost:5000`.
-
-6.  **View the Frontend**
-    Open the `index.html` file in your web browser. It will make API calls to your locally running backend. Note that you may need to adjust the `fetch` URL in `script.js` if you are not running the app behind a local proxy.
