@@ -1,56 +1,41 @@
 from flask import Flask, request, jsonify
-import psycopg2
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-CORS(app) # Allows the website to communicate with the server
+CORS(app)
 
-# Database settings (matches what we wrote in the bash script)
-DB_CONFIG = {
-    'dbname': 'webinar_db',
-    'user': 'adminuser',
-    'password': 'Password123!',
-    'host': 'localhost'
-}
+# Database settings
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://adminuser:Password123!@localhost/webinar_db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Function to create the table if it is missing
-def init_db():
-    try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cur = conn.cursor()
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS attendees (
-                id SERIAL PRIMARY KEY,
-                name VARCHAR(100),
-                email VARCHAR(100),
-                company VARCHAR(100),
-                jobtitle VARCHAR(100)
-            );
-        """)
-        conn.commit()
-        cur.close()
-        conn.close()
-        print("Database and table are ready!")
-    except Exception as e:
-        print(f"Error starting database: {e}")
+db = SQLAlchemy(app)
 
-# Runs when the server starts
-init_db()
+class Attendee(db.Model):
+    __tablename__ = 'attendees'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    email = db.Column(db.String(100))
+    company = db.Column(db.String(100))
+    jobtitle = db.Column(db.String(100))
+
+# Create tables
+with app.app_context():
+    db.create_all()
+    print("Database and table are ready!")
 
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cur = conn.cursor()
-        # Save data to the table
-        cur.execute(
-            "INSERT INTO attendees (name, email, company, jobtitle) VALUES (%s, %s, %s, %s)",
-            (data['name'], data['email'], data['company'], data['jobtitle'])
+        new_attendee = Attendee(
+            name=data['name'],
+            email=data['email'],
+            company=data.get('company'),
+            jobtitle=data.get('jobtitle')
         )
-        conn.commit()
-        cur.close()
-        conn.close()
+        db.session.add(new_attendee)
+        db.session.commit()
         return jsonify({"message": "Success"}), 200
     except Exception as e:
         print(e)
