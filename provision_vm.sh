@@ -73,7 +73,32 @@ az vm create \
   --public-ip-sku Standard \
   --custom-data @proxy_setup_ready.sh
 
-# 7. Open Ports
+# 7. CREATE WORKER VMS (Debian 13)
+echo "Creating WorkerVM1 (Debian 13)..."
+az vm create \
+  --resource-group $resource_group \
+  --name "WorkerVM1" \
+  --image "Debian:debian-13:13:latest" \
+  --size standard_b2ats_v2 \
+  --admin-username azureuser \
+  --generate-ssh-keys \
+  --vnet-name $vnet_name \
+  --subnet $subnet_name \
+  --public-ip-sku Standard
+
+echo "Creating WorkerVM2 (Debian 13)..."
+az vm create \
+  --resource-group $resource_group \
+  --name "WorkerVM2" \
+  --image "Debian:debian-13:13:latest" \
+  --size standard_b2ats_v2 \
+  --admin-username azureuser \
+  --generate-ssh-keys \
+  --vnet-name $vnet_name \
+  --subnet $subnet_name \
+  --public-ip-sku Standard
+
+# 8. Open Ports
 echo "Opening ports..."
 # We ONLY open port 80 on the Proxy (The Bouncer)
 az vm open-port --resource-group $resource_group --name $vm_proxy_name --port 80
@@ -81,9 +106,11 @@ az vm open-port --resource-group $resource_group --name $vm_proxy_name --port 80
 # NOTE: We do NOT open port 80 on the Backend. It should remain locked!
 # az vm open-port --resource-group $resource_group --name $vm_web_name --port 80
 
-# 8. Fetch PUBLIC IP addresses for the report
+# 9. Fetch PUBLIC IP addresses for the report
 proxy_public_ip=$(az vm show -d -g $resource_group -n $vm_proxy_name --query publicIps -o tsv)
 backend_public_ip=$(az vm show -d -g $resource_group -n $vm_web_name --query publicIps -o tsv)
+worker1_public_ip=$(az vm show -d -g $resource_group -n "WorkerVM1" --query publicIps -o tsv)
+worker2_public_ip=$(az vm show -d -g $resource_group -n "WorkerVM2" --query publicIps -o tsv)
 
 # Clean up the temporary file
 rm proxy_setup_ready.sh
@@ -95,4 +122,8 @@ echo "DEPLOYMENT COMPLETE!"
 echo "=================================================="
 echo ""
 echo "Here are your servers:"
-az vm list-ip-addresses -g $resource_group -o
+echo "Proxy Public IP: $proxy_public_ip"
+echo "Backend Public IP: $backend_public_ip"
+echo "Worker1 Public IP: $worker1_public_ip"
+echo "Worker2 Public IP: $worker2_public_ip"
+az vm list-ip-addresses -g $resource_group -o table
