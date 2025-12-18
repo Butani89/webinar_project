@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2025-12-18] - Frontend Content Update & Deployment Automation
+
+### Frontend
+- **Webinar Subject Change:** Updated the main webinar subject and description in `index.html` to: "Svamparnas Otroliga Liv: En djupdykning i myceliets psykologi och hur vi kan skapa musik tillsammans".
+
+### CI/CD
+- **Automated App Deployment:** Implemented `update-app.yml` GitHub Actions workflow to automatically deploy application code changes (e.g., frontend, backend code) to running VMs without full re-provisioning.
+
 ## [2025-12-18] - Architecture, Infrastructure & Security Overhaul
 
 ### Infrastructure
