@@ -14,6 +14,7 @@ if os.environ.get('FLASK_ENV') == 'development':
 # Database settings
 db_host = os.environ.get('DB_HOST', 'localhost')
 db_password = os.environ.get('DB_PASSWORD')
+admin_password = os.environ.get('ADMIN_PASSWORD', 'password')
 
 if not db_password:
     print("Error: DB_PASSWORD environment variable not set.")
@@ -94,9 +95,15 @@ def register():
 def get_attendees():
     """Fetch all registered attendees.
 
+    Requires 'X-Admin-Password' header for authentication.
+
     Returns:
         tuple: A JSON list of attendees and HTTP 200 status.
     """
+    auth_header = request.headers.get('X-Admin-Password')
+    if auth_header != admin_password:
+        return jsonify({"message": "Unauthorized"}), 401
+
     try:
         attendees = Attendee.query.order_by(Attendee.id.desc()).all()
         result = []

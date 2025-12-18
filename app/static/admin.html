@@ -59,9 +59,19 @@
     </header>
 
     <main>
-        <div class="admin-container">
+        <!-- Login Section -->
+        <div id="login-section" style="max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+            <h2>Admin Login</h2>
+            <input type="password" id="passwordInput" placeholder="Ange lösenord" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px;">
+            <button onclick="login()" class="refresh-btn" style="width: 100%;">Logga in</button>
+            <p id="loginError" style="color: red; display: none; margin-top: 10px;">Fel lösenord</p>
+        </div>
+
+        <!-- Dashboard Section (Hidden by default) -->
+        <div id="dashboard-section" class="admin-container" style="display: none;">
             <div class="header-actions">
                 <h2>Registrerade Deltagare</h2>
+                <button class="refresh-btn" onclick="logout()">Logga ut</button>
                 <button class="refresh-btn" onclick="fetchAttendees()">Uppdatera Lista</button>
             </div>
             
