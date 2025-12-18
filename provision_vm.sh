@@ -33,6 +33,7 @@ az vm create \
   --vnet-name $vnet_name \
   --subnet $subnet_name \
   --public-ip-sku Standard \
+  --nsg-rule NONE \
   --custom-data @db_setup.sh
 
 # 4. Fetch Database Private IP
@@ -61,6 +62,7 @@ az vm create \
   --vnet-name $vnet_name \
   --subnet $subnet_name \
   --public-ip-sku Standard \
+  --nsg-rule NONE \
   --custom-data @app_setup_ready.sh
 
 # 7. Fetch Backend Server PRIVATE IP (For internal connection)
@@ -99,13 +101,14 @@ az vm create \
   --vnet-name $vnet_name \
   --subnet $subnet_name \
   --public-ip-sku Standard \
+  --nsg-rule NONE \
   --custom-data @proxy_setup_ready.sh
 
-# 10. CREATE EXTRA WORKER (WorkerVM2)
-echo "Creating WorkerVM2 (Debian 13)..."
+# 10. CREATE BASTION VM (WorkerVM2 -> bastionVM)
+echo "Creating BastionVM (Debian 13)..."
 az vm create \
   --resource-group $resource_group \
-  --name "WorkerVM2" \
+  --name "bastionVM" \
   --image "Debian:debian-13:13:latest" \
   --size standard_b2ats_v2 \
   --admin-username azureuser \
@@ -113,6 +116,7 @@ az vm create \
   --vnet-name $vnet_name \
   --subnet $subnet_name \
   --public-ip-sku Standard
+# Note: We allow default SSH (nsg-rule SSH) for the Bastion.
 
 # 11. Open Ports
 echo "Opening ports..."
@@ -121,9 +125,7 @@ az vm open-port --resource-group $resource_group --name $vm_proxy_name --port 80
 
 # 12. Fetch PUBLIC IP addresses for the report
 proxy_public_ip=$(az vm show -d -g $resource_group -n $vm_proxy_name --query publicIps -o tsv)
-backend_public_ip=$(az vm show -d -g $resource_group -n $vm_web_name --query publicIps -o tsv)
-db_public_ip=$(az vm show -d -g $resource_group -n "DatabaseVM" --query publicIps -o tsv)
-worker2_public_ip=$(az vm show -d -g $resource_group -n "WorkerVM2" --query publicIps -o tsv)
+bastion_public_ip=$(az vm show -d -g $resource_group -n "bastionVM" --query publicIps -o tsv)
 
 # Clean up temporary files
 rm proxy_setup_ready.sh
@@ -136,8 +138,7 @@ echo "DEPLOYMENT COMPLETE!"
 echo "=================================================="
 echo ""
 echo "Here are your servers:"
-echo "Proxy Public IP:   $proxy_public_ip"
-echo "Backend Public IP: $backend_public_ip"
-echo "Database Public IP:$db_public_ip"
-echo "Worker2 Public IP: $worker2_public_ip"
+echo "Bastion Public IP: $bastion_public_ip (SSH Entry Point)"
+echo "Proxy Public IP:   $proxy_public_ip (Web Access)"
+echo "Database & Backend: Protected (Access via Bastion only)"
 az vm list-ip-addresses -g $resource_group -o table
