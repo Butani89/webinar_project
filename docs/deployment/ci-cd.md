@@ -27,6 +27,20 @@ flowchart LR
 3.  **Generate Secrets:** Creates a fresh, random password for the database for this deployment run.
 4.  **Deploy Bicep:** Runs `az deployment group create` to apply the state defined in `infra/main.bicep`.
 
+## Application Code Deployment
+
+We have a separate workflow (`.github/workflows/update-app.yml`) for fast application updates.
+
+**Trigger:** Push to `main` (excluding `infra/`, `docs/`, etc.).
+
+**Mechanism:**
+Instead of rebuilding the VM, this workflow uses the **Azure Run Command** feature. It instructs the Azure Guest Agent on the `BackendVM` to execute a shell script that:
+1.  Navigates to the app directory (`/var/www/html`).
+2.  Pulls the latest code (`git fetch` & `git reset`).
+3.  Restarts the Flask service (`systemctl restart webinar`).
+
+This allows for deployment in seconds/minutes without downtime associated with VM provisioning.
+
 ## Setup Instructions
 
 If you fork this repository, you must configure the following **GitHub Secrets** for the pipeline to work.

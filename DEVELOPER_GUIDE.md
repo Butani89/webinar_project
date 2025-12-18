@@ -53,20 +53,23 @@ gitGraph
 
 ## 🚀 Deploying Code Changes (Application Updates)
 
-After pushing your code changes to the `main` branch, the GitHub Actions workflow will update the infrastructure if any Bicep files changed. However, for application code changes (`app.py`, `script.js`, etc.) on already running Virtual Machines, you need to trigger an update.
+We have two methods for deploying code changes:
 
-### Steps to Deploy Code Updates:
+### 1. Automated (Recommended)
+Simply **push your changes to the `main` branch**.
+*   A GitHub Action (`update-app.yml`) will automatically trigger.
+*   It connects to the Backend VM using Azure Run Command.
+*   It pulls the latest code and restarts the app.
 
-1.  **Push your changes** to the `main` branch as described in the "Workflow" section above. This makes your latest code available in the repository.
+### 2. Manual (Fallback)
+If you need to trigger an update manually from your local machine (e.g., during troubleshooting):
 
-2.  **Run the local update script:**
-    From your project's root directory on your local machine, execute:
+1.  **Run the local update script:**
+    From your project's root directory:
     ```bash
     ./update_code.sh
     ```
-    This script will securely connect to your Backend VM (via the Bastion Host), pull the latest code, and restart the application service.
-
-    *(Note: The `update_code.sh` script automatically fetches the Bastion and Backend IP addresses from your last successful Bicep deployment. If you have redeployed with a new Bastion IP, ensure the script is up-to-date or re-run `az deployment group show` to get the latest IPs if you modified the script manually.)*
+    This script tunnels through the Bastion Host to run the update commands.
 
 ## 🧪 Testing
 

@@ -1,0 +1,39 @@
+name: Update Application Code
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'infra/**'
+      - 'docs/**'
+      - '*.md'
+      - 'deploy.sh'
+      - '.github/workflows/deploy.yml' # Don't run when infra config changes
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  update-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Update BackendVM
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            echo "Triggering git pull on BackendVM..."
+            az vm run-command invoke \
+              --resource-group SvamparnasRG_Prod \
+              --name BackendVM \
+              --command-id RunShellScript \
+              --scripts "cd /var/www/html && git fetch --all && git reset --hard origin/main && systemctl restart webinar"
