@@ -33,7 +33,7 @@ User=root
 WorkingDirectory=/var/www/html
 Environment="DB_HOST=${DB_HOST:-localhost}"
 Environment="DB_PASSWORD=${DB_PASSWORD}"
-ExecStart=/var/www/html/venv/bin/python3 app/main.py
+ExecStart=/bin/bash -c "PYTHONPATH=/var/www/html /var/www/html/venv/bin/python3 /var/www/html/app/main.py"
 Restart=always
 
 [Install]
