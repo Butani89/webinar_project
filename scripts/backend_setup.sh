@@ -5,8 +5,12 @@ apt update
 apt install nginx git python3-full python3-pip python3-venv -y
 
 # 2. Get Website Files
-rm -rf /var/www/html/*
-git clone https://github.com/Butani89/webinar_project.git /var/www/html/
+if [ -d "/var/www/html/.git" ]; then
+  cd /var/www/html
+  git pull
+else
+  git clone https://github.com/Butani89/webinar_project.git /var/www/html/
+fi
 
 # 3. Setup Python Virtual Environment & Dependencies
 cd /var/www/html
