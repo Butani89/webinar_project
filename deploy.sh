@@ -6,12 +6,15 @@ RESOURCE_GROUP="SvamparnasRG_Prod"
 LOCATION="norwayeast"
 
 # --- SECRETS ---
-# Generate a strong random password for the database
+# Generate strong random passwords
 DB_PASSWORD=$(openssl rand -base64 16)
-# DuckDNS Token (Ideally this should be an input)
+ADMIN_PASSWORD=$(openssl rand -base64 12)
+# DuckDNS Config
 DUCKDNS_TOKEN="6ed97e8a-fe91-4986-b4da-3bfc75de29c2"
+DUCKDNS_DOMAIN="webinar-deluxe"
 
 echo "Generated Database Password: $DB_PASSWORD"
+echo "Generated Admin Password: $ADMIN_PASSWORD"
 
 # Ensure SSH keys exist
 if [ ! -f ~/.ssh/id_rsa.pub ]; then
@@ -32,6 +35,8 @@ az deployment group create \
   --parameters adminPublicKey="$SSH_KEY" \
   --parameters dbPassword="$DB_PASSWORD" \
   --parameters duckDnsToken="$DUCKDNS_TOKEN" \
+  --parameters adminPassword="$ADMIN_PASSWORD" \
+  --parameters duckDnsDomain="$DUCKDNS_DOMAIN" \
   --output table
 
 echo ""
@@ -42,3 +47,4 @@ echo "Wait for the VMs to finish provisioning (cloud-init)..."
 echo "You can check progress in the Azure Portal."
 echo ""
 echo "Database Password: $DB_PASSWORD"
+echo "Admin Password: $ADMIN_PASSWORD"

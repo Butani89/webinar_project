@@ -21,7 +21,6 @@ jobs:
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
@@ -40,4 +39,6 @@ jobs:
             adminPublicKey="${{ secrets.SSH_PUBLIC_KEY }}"
             dbPassword="${{ steps.secrets.outputs.DB_PASSWORD }}"
             duckDnsToken="${{ secrets.DUCKDNS_TOKEN }}"
+            adminPassword="${{ secrets.ADMIN_PASSWORD }}"
+            duckDnsDomain="${{ secrets.DUCKDNS_DOMAIN }}"
           failOnStdErr: false
