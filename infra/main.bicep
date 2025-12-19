@@ -417,7 +417,7 @@ resource proxyVm 'Microsoft.Compute/virtualMachines@2021-07-01' = {
 
 // Grant Proxy VM access to Storage
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(resourceGroup().id, storageAccountName, storageBlobDataContributorRole, proxyVm.identity.principalId)
+  name: guid(resourceGroup().id, storageAccountName, storageBlobDataContributorRole)
   scope: storageAccount
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataContributorRole)
