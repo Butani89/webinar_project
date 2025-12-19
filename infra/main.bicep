@@ -221,6 +221,35 @@ resource bastionNic 'Microsoft.Network/networkInterfaces@2021-02-01' = {
   }
 }
 
+// --- STORAGE ---
+var storageAccountName = 'st${uniqueString(resourceGroup().id)}'
+var storageBlobDataContributorRole = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+  name: storageAccountName
+  location: location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    accessTier: 'Hot'
+  }
+}
+
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01' = {
+  parent: storageAccount
+  name: 'default'
+}
+
+resource certContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
+  parent: blobService
+  name: 'certs'
+  properties: {
+    publicAccess: 'None'
+  }
+}
+
 // --- VIRTUAL MACHINES ---
 
 // 1. Database VM
@@ -328,6 +357,9 @@ resource backendVm 'Microsoft.Compute/virtualMachines@2021-07-01' = {
 resource proxyVm 'Microsoft.Compute/virtualMachines@2021-07-01' = {
   name: 'FrontendProxyVM'
   location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     hardwareProfile: {
       vmSize: 'Standard_B2s_v2'
@@ -367,13 +399,24 @@ resource proxyVm 'Microsoft.Compute/virtualMachines@2021-07-01' = {
           ]
         }
       }
-      // Inject Token and Backend IP into template
-      customData: base64(replace(replace(loadTextContent('./scripts/proxy_setup_template.sh'), '__DUCKDNS_TOKEN__', duckDnsToken), '__BACKEND_IP__', backendNic.properties.ipConfigurations[0].properties.privateIPAddress))
+      // Inject Token, Backend IP, and Storage Account Name into template
+      customData: base64(replace(replace(replace(loadTextContent('./scripts/proxy_setup_template.sh'), '__DUCKDNS_TOKEN__', duckDnsToken), '__BACKEND_IP__', backendNic.properties.ipConfigurations[0].properties.privateIPAddress), '__STORAGE_ACCOUNT_NAME__', storageAccountName))
     }
   }
   dependsOn: [
     backendVm // Ensure Backend IP is ready
   ]
+}
+
+// Grant Proxy VM access to Storage
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(resourceGroup().id, storageAccountName, storageBlobDataContributorRole)
+  scope: storageAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataContributorRole)
+    principalId: proxyVm.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
 }
 
 // 4. Bastion VM
