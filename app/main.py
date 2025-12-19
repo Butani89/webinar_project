@@ -5,6 +5,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from scripts.generate_art import generate_mushroom
 
+# Add the project root to the sys.path for module discovery
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 app = Flask(__name__)
 
 # Enable CORS for local development
