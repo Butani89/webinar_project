@@ -100,20 +100,16 @@ def register():
             name=data['name'],
             email=data['email'],
             company=data.get('company'),
-            jobtitle=data.get('jobtitle'), # Optional
+            jobtitle=data.get('jobtitle'),
             experience=data.get('experience'),
             date=data['date']
         )
         db.session.add(new_attendee)
-        db.session.commit() # Commit to get the new_attendee.id
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        logging.error(f"Database error during registration: {e}")
-        return jsonify({"message": "Database error during registration"}), 500
+        db.session.commit()
     except Exception as e:
         db.session.rollback()
-        logging.error(f"Error registering attendee: {e}")
-        return jsonify({"message": "Internal Server Error"}), 500
+        logging.error(f"Database error during registration: {e}")
+        return jsonify({"message": "Failed to save registration to database."}), 500
 
     try:
         # Generate mushroom art
@@ -123,17 +119,13 @@ def register():
         
         # Update attendee with image URL
         new_attendee.image_url = f'/img/attendees/{attendee_image_filename}'
-        db.session.commit() # Commit again to save the image_url
+        db.session.commit()
 
-        return jsonify({"message": "Success", "image_url": new_attendee.image_url}), 201
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        logging.error(f"Database error updating image URL: {e}")
-        return jsonify({"message": "Database error updating image URL"}), 500
+        return jsonify({"message": "Registration successful!", "image_url": new_attendee.image_url}), 201
     except Exception as e:
-        db.session.rollback()
-        logging.error(f"Error generating or saving image for attendee: {e}")
-        return jsonify({"message": "Internal Server Error"}), 500
+        logging.error(f"Error generating art or updating image URL: {e}")
+        # We don't rollback the whole registration if only art fails, but we should inform
+        return jsonify({"message": "Registration successful, but art generation failed.", "image_url": None}), 201
 
 @app.route('/api/attendees', methods=['GET'])
 def get_attendees():

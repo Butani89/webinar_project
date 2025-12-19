@@ -40,7 +40,7 @@ fi
 # Create DuckDNS update script
 cat <<DUCK > /usr/local/bin/duckdns_update.sh
 #!/bin/bash
-curl "https://www.duckdns.org/update?domains=webinar-deluxe&token=__DUCKDNS_TOKEN__&ip="
+curl "https://www.duckdns.org/update?domains=__DUCKDNS_DOMAIN__&token=__DUCKDNS_TOKEN__&ip="
 DUCK
 chmod +x /usr/local/bin/duckdns_update.sh
 
@@ -54,7 +54,7 @@ sleep 60
 cat <<NGINXCONF > /etc/nginx/sites-available/default
 server {
     listen 80;
-    server_name webinar-deluxe.duckdns.org;
+    server_name __DUCKDNS_DOMAIN__.duckdns.org;
     location / {
         proxy_pass http://__BACKEND_IP__;
         proxy_set_header Host \$host;
@@ -76,12 +76,12 @@ BACKUP
 chmod +x /usr/local/bin/backup_certs.sh
 
 # Only run Certbot if we didn't restore a working config (or check if live dir exists)
-if [ ! -d "/etc/letsencrypt/live/webinar-deluxe.duckdns.org" ]; then
+if [ ! -d "/etc/letsencrypt/live/__DUCKDNS_DOMAIN__.duckdns.org" ]; then
     # Request Certificate and redirect HTTP to HTTPS with Retry Logic
     for i in {1..5}; do
       echo "Attempt $i to obtain SSL certificate..."
       # Add --deploy-hook to back up immediately after success
-      certbot --nginx -d webinar-deluxe.duckdns.org --non-interactive --agree-tos --register-unsafely-without-email --redirect --deploy-hook /usr/local/bin/backup_certs.sh && break
+      certbot --nginx -d __DUCKDNS_DOMAIN__.duckdns.org --non-interactive --agree-tos --register-unsafely-without-email --redirect --deploy-hook /usr/local/bin/backup_certs.sh && break
       echo "Certbot failed, retrying in 30s..."
       sleep 30
     done
@@ -90,7 +90,7 @@ else
     # If we restored, we might need to reinstall the Nginx certificate configuration if it wasn't captured in sites-available
     # (Note: /etc/letsencrypt contains the certs, but /etc/nginx/sites-available/default also needs the SSL config lines)
     # Certbot --reinstall can help, or we can just run certbot again, it should detect existing certs and just install the nginx config.
-    certbot install --nginx -d webinar-deluxe.duckdns.org --non-interactive --redirect
+    certbot install --nginx -d __DUCKDNS_DOMAIN__.duckdns.org --non-interactive --redirect
 fi
 
 # Setup Cron jobs

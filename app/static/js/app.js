@@ -23,14 +23,14 @@ function updateCountdown() {
     const distance = eventDate - now;
 
     if (distance < 0) {
-        countdownElement.textContent = "Webinariet har startat! God Jul och klicka på länkarna nedan.";
-        countdownElement.style.color = "green";
+        countdownElement.textContent = "Webinariet har startat! Klicka på länkarna nedan för att ansluta.";
+        countdownElement.style.color = "var(--primary-color)";
     } else {
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         
-        countdownElement.textContent = `Du kan gå med i mötet om: ${days} dagar, ${hours} timmar och ${minutes} minuter`;
+        countdownElement.textContent = `Sändningen startar om: ${days}d ${hours}t ${minutes}m`;
     }
 }
 
@@ -45,14 +45,11 @@ function handleWebinarRegistration(event) {
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     const company = document.getElementById('company').value || "Privat";
-    
-    // Vi skickar nu erfarenhet och datum separat för bättre datastruktur
-    const experience = document.getElementById('experience').value || "Intresserad";
+    const experience = document.getElementById('experience').value;
     const date = document.getElementById('date').value;
-    // jobtitle kan vara tomt eller användas för något annat i framtiden
     const jobtitle = ""; 
 
-    submitBtn.textContent = "Skickar...";
+    submitBtn.textContent = "Bearbetar anmälan...";
     submitBtn.disabled = true;
 
     // Fetch-anrop till Python-backend
@@ -63,38 +60,38 @@ function handleWebinarRegistration(event) {
     })
     .then(response => response.json().then(data => ({ status: response.status, body: data })))
     .then(({ status, body }) => {
-        if (status === 201) { // Assuming 201 is success with image_url
+        if (status === 201) {
             formFeedback.style.display = 'block';
-            formFeedback.style.color = '#556B2F'; 
-            formFeedback.innerHTML = `God Jul, ${name}! Din anmälan till ${date} är mottagen.`;
+            formFeedback.style.color = 'var(--primary-color)'; 
+            formFeedback.innerHTML = `Tack för din anmälan, ${name}! Din plats är nu reserverad. <br>Här är din unika bio-genererade svamp-avatar:`;
             
             // Add mushroom image
             if (body.image_url) {
                 const img = document.createElement('img');
                 img.src = body.image_url;
-                img.alt = 'Your Mushroom';
-                img.style.width = '64px';
-                img.style.height = '64px';
+                img.alt = 'Your Mushroom Avatar';
+                img.style.width = '120px';
+                img.style.height = '120px';
                 img.style.display = 'block';
-                img.style.margin = '10px auto';
+                img.style.margin = '15px auto';
+                img.style.borderRadius = '10px';
+                img.style.boxShadow = 'var(--shadow)';
                 formFeedback.appendChild(img);
             }
 
             document.getElementById('webinarForm').reset();
         } else {
-            // Handle other successful but non-201 responses if necessary
-            // For now, assume any non-201 with 'ok' status is a server error for simplification
-            throw new Error(body.message || 'Server error');
+            throw new Error(body.message || 'Serverfel vid registrering');
         }
     })
     .catch(error => {
         console.error('Error:', error);
         formFeedback.style.display = 'block';
-        formFeedback.style.color = '#8B4513';
-        formFeedback.textContent = "Kunde inte nå servern. Försök igen senare.";
+        formFeedback.style.color = '#d9534f';
+        formFeedback.textContent = error.message || "Ett fel uppstod. Kontrollera din anslutning.";
     })
     .finally(() => {
-        submitBtn.textContent = "Anmäl mig!";
+        submitBtn.textContent = "Anmäl mig till webinaret";
         submitBtn.disabled = false;
     });
 }

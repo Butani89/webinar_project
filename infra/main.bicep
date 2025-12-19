@@ -15,6 +15,13 @@ param dbPassword string
 @secure()
 param duckDnsToken string
 
+@description('DuckDNS Domain (e.g. my-webinar)')
+param duckDnsDomain string
+
+@description('Admin Password for the App')
+@secure()
+param adminPassword string
+
 var vnetName = 'SvampVNet'
 var subnetName = 'SvampSubnet'
 var vnetAddressPrefix = '10.0.0.0/16'
@@ -345,7 +352,7 @@ resource backendVm 'Microsoft.Compute/virtualMachines@2021-07-01' = {
         }
       }
       // Inject DB Host (Private IP) and Password
-      customData: base64(format('#!/bin/bash\nexport DB_HOST="{0}"\nexport DB_PASSWORD="{1}"\n{2}', dbNic.properties.ipConfigurations[0].properties.privateIPAddress, dbPassword, loadTextContent('../scripts/backend_setup.sh')))
+      customData: base64(format('#!/bin/bash\nexport DB_HOST="{0}"\nexport DB_PASSWORD="{1}"\nexport ADMIN_PASSWORD="{2}"\n{3}', dbNic.properties.ipConfigurations[0].properties.privateIPAddress, dbPassword, adminPassword, loadTextContent('../scripts/backend_setup.sh')))
     }
   }
   dependsOn: [
@@ -400,7 +407,7 @@ resource proxyVm 'Microsoft.Compute/virtualMachines@2021-07-01' = {
         }
       }
       // Inject Token, Backend IP, and Storage Account Name into template
-      customData: base64(replace(replace(replace(loadTextContent('./scripts/proxy_setup_template.sh'), '__DUCKDNS_TOKEN__', duckDnsToken), '__BACKEND_IP__', backendNic.properties.ipConfigurations[0].properties.privateIPAddress), '__STORAGE_ACCOUNT_NAME__', storageAccountName))
+      customData: base64(replace(replace(replace(replace(loadTextContent('./scripts/proxy_setup_template.sh'), '__DUCKDNS_TOKEN__', duckDnsToken), '__BACKEND_IP__', backendNic.properties.ipConfigurations[0].properties.privateIPAddress), '__STORAGE_ACCOUNT_NAME__', storageAccountName), '__DUCKDNS_DOMAIN__', duckDnsDomain))
     }
   }
   dependsOn: [
