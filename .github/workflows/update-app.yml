@@ -9,7 +9,8 @@ on:
       - 'docs/**'
       - '*.md'
       - 'deploy.sh'
-      - '.github/workflows/deploy.yml' # Don't run when infra config changes
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
 
 permissions:
   id-token: write
