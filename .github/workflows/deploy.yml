@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'infra/**'
+      - 'scripts/db_setup.sh'
+      - 'scripts/backend_setup.sh'
+      - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
 permissions:
