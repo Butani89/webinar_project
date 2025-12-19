@@ -405,7 +405,6 @@ resource proxyVm 'Microsoft.Compute/virtualMachines@2021-07-01' = {
   }
   dependsOn: [
     backendVm // Ensure Backend IP is ready
-    roleAssignment // Ensure role assignment is complete before customData runs
   ]
 }
 
