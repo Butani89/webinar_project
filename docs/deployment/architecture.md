@@ -17,13 +17,13 @@ graph TD;
     subgraph "Azure Resource Group"
         subgraph "Virtual Network (10.0.0.0/16)"
             subgraph "Public Subnet"
-                Proxy[FrontendProxyVM (Debian 13)]
-                Bastion[bastionVM (Debian 13)]
+                Proxy["FrontendProxyVM (Debian 13)"]
+                Bastion["bastionVM (Debian 13)"]
             end
 
             subgraph "Private Subnet (Virtual)"
-                Backend[BackendVM (Debian 13)]
-                DB[DatabaseVM (Debian 13)]
+                Backend["BackendVM (Debian 13)"]
+                DB["DatabaseVM (Debian 13)"]
             end
         end
     end
