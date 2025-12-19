@@ -1,25 +1,34 @@
 import os
 import sys
+import re
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from scripts.generate_art import generate_mushroom
 
 
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 app = Flask(__name__)
 
 # Enable CORS for local development
 if os.environ.get('FLASK_ENV') == 'development':
     CORS(app)
-    print("CORS enabled for development environment.")
+    logging.info("CORS enabled for development environment.")
 
 # Database settings
 db_host = os.environ.get('DB_HOST', 'localhost')
 db_password = os.environ.get('DB_PASSWORD')
-admin_password = os.environ.get('ADMIN_PASSWORD', 'password')
+admin_password = os.environ.get('ADMIN_PASSWORD') # Removed default 'password'
 
 if not db_password:
-    print("Error: DB_PASSWORD environment variable not set.")
+    logging.error("Error: DB_PASSWORD environment variable not set.")
+    sys.exit(1)
+
+if not admin_password:
+    logging.error("Error: ADMIN_PASSWORD environment variable not set.")
     sys.exit(1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://adminuser:{db_password}@{db_host}/webinar_db'
@@ -55,8 +64,8 @@ with app.app_context():
     # Ensure directory for attendee images exists
     attendee_image_dir = os.path.join(app.static_folder, 'img', 'attendees')
     os.makedirs(attendee_image_dir, exist_ok=True)
-    print("Database and table are ready!")
-    print(f"Attendee image directory created: {attendee_image_dir}")
+    logging.info("Database and table are ready!")
+    logging.info(f"Attendee image directory created: {attendee_image_dir}")
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -82,6 +91,10 @@ def register():
     if missing_fields:
         return jsonify({"message": f"Missing required fields: {', '.join(missing_fields)}"}), 400
 
+    # Basic email format validation
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", data['email']):
+        return jsonify({"message": "Invalid email format"}), 400
+
     try:
         new_attendee = Attendee(
             name=data['name'],
@@ -93,7 +106,16 @@ def register():
         )
         db.session.add(new_attendee)
         db.session.commit() # Commit to get the new_attendee.id
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logging.error(f"Database error during registration: {e}")
+        return jsonify({"message": "Database error during registration"}), 500
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error registering attendee: {e}")
+        return jsonify({"message": "Internal Server Error"}), 500
 
+    try:
         # Generate mushroom art
         attendee_image_filename = f"attendee_mushroom_{new_attendee.id}.png"
         attendee_image_path = os.path.join(app.static_folder, 'img', 'attendees', attendee_image_filename)
@@ -104,8 +126,13 @@ def register():
         db.session.commit() # Commit again to save the image_url
 
         return jsonify({"message": "Success", "image_url": new_attendee.image_url}), 201
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logging.error(f"Database error updating image URL: {e}")
+        return jsonify({"message": "Database error updating image URL"}), 500
     except Exception as e:
-        print(f"Error registering attendee: {e}")
+        db.session.rollback()
+        logging.error(f"Error generating or saving image for attendee: {e}")
         return jsonify({"message": "Internal Server Error"}), 500
 
 @app.route('/api/attendees', methods=['GET'])
@@ -136,8 +163,11 @@ def get_attendees():
             })
         return jsonify(result), 200
     except Exception as e:
-        print(f"Error fetching attendees: {e}")
+        logging.error(f"Error fetching attendees: {e}")
         return jsonify({"message": "Internal Server Error"}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    if os.environ.get('FLASK_ENV') == 'development':
+        app.run(host='0.0.0.0', port=5000)
+    else:
+        app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
