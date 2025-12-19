@@ -12,16 +12,29 @@ STORAGE_ACCOUNT="__STORAGE_ACCOUNT_NAME__"
 CONTAINER="certs"
 ARCHIVE="letsencrypt.tar.gz"
 
+MAX_RETRIES=10
+RETRY_DELAY=10
+
 echo "Checking for existing certificates in $STORAGE_ACCOUNT..."
 
-# Try to download existing certs
-if az storage blob exists --account-name $STORAGE_ACCOUNT --container-name $CONTAINER --name $ARCHIVE --auth-mode login --output tsv --query exists | grep -q "true"; then
-    echo "Restoring certificates from storage..."
-    az storage blob download --account-name $STORAGE_ACCOUNT --container-name $CONTAINER --name $ARCHIVE --file /tmp/$ARCHIVE --auth-mode login
-    tar -xzf /tmp/$ARCHIVE -C /
-    echo "Certificates restored."
-else
-    echo "No existing certificates found. Generating new ones..."
+for i in $(seq 1 $MAX_RETRIES); do
+    if az storage blob exists --account-name $STORAGE_ACCOUNT --container-name $CONTAINER --name $ARCHIVE --auth-mode login --output tsv --query exists | grep -q "true"; then
+        echo "Attempt $i: Restoring certificates from storage..."
+        if az storage blob download --account-name $STORAGE_ACCOUNT --container-name $CONTAINER --name $ARCHIVE --file /tmp/$ARCHIVE --auth-mode login; then
+            tar -xzf /tmp/$ARCHIVE -C /
+            echo "Certificates restored."
+            break
+        else
+            echo "Attempt $i: Failed to download certificates. Retrying in $RETRY_DELAY seconds..."
+        fi
+    else
+        echo "Attempt $i: No existing certificates found in storage. Retrying check in $RETRY_DELAY seconds..."
+    fi
+    sleep $RETRY_DELAY
+done
+
+if [ ! -f "/tmp/$ARCHIVE" ]; then
+    echo "No existing certificates found or failed to restore after $MAX_RETRIES attempts. Generating new ones..."
 fi
 
 # Create DuckDNS update script
@@ -88,4 +101,3 @@ fi
 # Ensure renewal also triggers backup. Certbot keeps config in /etc/letsencrypt/renewal/*.conf.
 # We will add a post-hook to the renewal config globally.
 echo "deploy-hook = /usr/local/bin/backup_certs.sh" >> /etc/letsencrypt/cli.ini
-
