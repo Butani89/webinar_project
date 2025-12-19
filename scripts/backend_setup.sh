@@ -5,10 +5,13 @@ apt update
 apt install nginx git python3-full python3-pip python3-venv -y
 
 # 2. Get Website Files
+sudo chown -R azureuser:azureuser /var/www/html # Ensure ownership
 if [ -d "/var/www/html/.git" ]; then
   cd /var/www/html
   git pull
 else
+  # Ensure the directory is empty before cloning
+  sudo rm -rf /var/www/html/*
   git clone https://github.com/Butani89/webinar_project.git /var/www/html/
 fi
 
