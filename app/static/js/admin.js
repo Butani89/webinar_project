@@ -74,6 +74,7 @@ async function fetchAttendees() {
                     <td>${escapeHtml(attendee.company || '-')}</td>
                     <td>${escapeHtml(attendee.experience || '-')}</td>
                     <td>${escapeHtml(attendee.date)}</td>
+                    <td><img src="${attendee.image_url}" alt="Mushroom" style="width: 64px; height: 64px; display: block; margin: auto;"></td>
                 `;
                 tableBody.appendChild(row);
             });

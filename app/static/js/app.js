@@ -61,14 +61,30 @@ function handleWebinarRegistration(event) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, company, experience, date, jobtitle }),
     })
-    .then(response => {
-        if (response.ok) {
+    .then(response => response.json().then(data => ({ status: response.status, body: data })))
+    .then(({ status, body }) => {
+        if (status === 201) { // Assuming 201 is success with image_url
             formFeedback.style.display = 'block';
             formFeedback.style.color = '#556B2F'; 
-            formFeedback.textContent = `God Jul, ${name}! Din anmälan till ${date} är mottagen.`;
+            formFeedback.innerHTML = `God Jul, ${name}! Din anmälan till ${date} är mottagen.`;
+            
+            // Add mushroom image
+            if (body.image_url) {
+                const img = document.createElement('img');
+                img.src = body.image_url;
+                img.alt = 'Your Mushroom';
+                img.style.width = '64px';
+                img.style.height = '64px';
+                img.style.display = 'block';
+                img.style.margin = '10px auto';
+                formFeedback.appendChild(img);
+            }
+
             document.getElementById('webinarForm').reset();
         } else {
-            throw new Error('Server error');
+            // Handle other successful but non-201 responses if necessary
+            // For now, assume any non-201 with 'ok' status is a server error for simplification
+            throw new Error(body.message || 'Server error');
         }
     })
     .catch(error => {

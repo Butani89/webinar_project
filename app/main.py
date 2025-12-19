@@ -3,6 +3,7 @@ import sys
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from scripts.generate_art import generate_mushroom
 
 app = Flask(__name__)
 
@@ -45,11 +46,16 @@ class Attendee(db.Model):
     jobtitle = db.Column(db.String(100)) # Kept for backward compatibility if needed, or repurposed
     experience = db.Column(db.String(100))
     date = db.Column(db.String(50), nullable=False)
+    image_url = db.Column(db.String(255), nullable=True)
 
 # Create tables
 with app.app_context():
     db.create_all()
+    # Ensure directory for attendee images exists
+    attendee_image_dir = os.path.join(app.static_folder, 'img', 'attendees')
+    os.makedirs(attendee_image_dir, exist_ok=True)
     print("Database and table are ready!")
+    print(f"Attendee image directory created: {attendee_image_dir}")
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -85,8 +91,18 @@ def register():
             date=data['date']
         )
         db.session.add(new_attendee)
-        db.session.commit()
-        return jsonify({"message": "Success"}), 201
+        db.session.commit() # Commit to get the new_attendee.id
+
+        # Generate mushroom art
+        attendee_image_filename = f"attendee_mushroom_{new_attendee.id}.png"
+        attendee_image_path = os.path.join(app.static_folder, 'img', 'attendees', attendee_image_filename)
+        generate_mushroom(new_attendee.id, attendee_image_path)
+        
+        # Update attendee with image URL
+        new_attendee.image_url = f'/static/img/attendees/{attendee_image_filename}'
+        db.session.commit() # Commit again to save the image_url
+
+        return jsonify({"message": "Success", "image_url": new_attendee.image_url}), 201
     except Exception as e:
         print(f"Error registering attendee: {e}")
         return jsonify({"message": "Internal Server Error"}), 500
@@ -114,7 +130,8 @@ def get_attendees():
                 "email": attendee.email,
                 "company": attendee.company,
                 "experience": attendee.experience,
-                "date": attendee.date
+                "date": attendee.date,
+                "image_url": attendee.image_url
             })
         return jsonify(result), 200
     except Exception as e:
