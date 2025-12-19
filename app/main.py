@@ -100,7 +100,7 @@ def register():
         generate_mushroom(new_attendee.id, attendee_image_path)
         
         # Update attendee with image URL
-        new_attendee.image_url = f'/static/img/attendees/{attendee_image_filename}'
+        new_attendee.image_url = f'/img/attendees/{attendee_image_filename}'
         db.session.commit() # Commit again to save the image_url
 
         return jsonify({"message": "Success", "image_url": new_attendee.image_url}), 201
