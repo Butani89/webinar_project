@@ -1,69 +1,38 @@
-# Continuous Deployment (CI/CD)
+# Continuous Integration & Deployment (CI/CD)
 
-We use **GitHub Actions** to automatically deploy infrastructure changes whenever code is pushed to the `main` branch.
+The project uses GitHub Actions to enforce code quality and automate deployment.
 
-## Workflow Overview
+## Workflows
 
-The workflow file is located at: `.github/workflows/deploy.yml`
+### 1. Integration Pipeline (`development`)
+**Trigger**: Push/PR to `development`.
 
-```mermaid
-flowchart LR
-    A[Push to Main] -->|Trigger| B(GitHub Action Start)
-    B --> C{Azure Login}
-    C -->|Success| D[Generate Secrets]
-    C -->|Fail| E[Stop Workflow]
-    D --> F[Deploy Bicep Template]
-    F -->|Updates Infrastructure| G[Azure Resource Group]
-    G --> H[VM Cloud-Init Config]
-```
+This workflow ensures that the Ansible configuration and application code work correctly on a fresh **Debian 13** environment before merging.
 
-**Trigger:** Push to `main` branch.
+1.  **Provision**: Spins up `database`, `backend`, `proxy` containers using `infra/opentofu/local`.
+2.  **Configure**: Runs the Ansible Playbook `site.yml` against these containers.
+3.  **Verify**: Checks if the application responds to HTTP requests.
 
-**Important Note:** This CI/CD pipeline is designed for **infrastructure deployment** (Bicep templates). It will ensure your Azure resources match your Bicep definitions. However, it does *not* automatically update application code on existing running Virtual Machines. For **application code updates**, refer to the "Deploying Code Changes" section in the [Developer Guide](../../DEVELOPER_GUIDE.md).
+### 2. Production Deployment (`production`)
+**Trigger**: Push to `production`.
 
-**Steps:**
-1.  **Checkout Code:** Pulls the latest repository version.
-2.  **Azure Login:** Authenticates using a Service Principal (Secret-based).
-3.  **Generate Secrets:** Creates a fresh, random password for the database for this deployment run.
-4.  **Deploy Bicep:** Runs `az deployment group create` to apply the state defined in `infra/main.bicep`.
+This workflow provisions the actual cloud infrastructure and updates the application.
 
-## Application Code Deployment
-
-We have a separate workflow (`.github/workflows/update-app.yml`) for fast application updates.
-
-**Trigger:** Push to `main` (excluding `infra/`, `docs/`, etc.).
-
-**Mechanism:**
-Instead of rebuilding the VM, this workflow uses the **Azure Run Command** feature. It instructs the Azure Guest Agent on the `BackendVM` to execute a shell script that:
-1.  Navigates to the app directory (`/var/www/html`).
-2.  Pulls the latest code (`git fetch` & `git reset`).
-3.  Restarts the Flask service (`systemctl restart webinar`).
-
-This allows for deployment in seconds/minutes without downtime associated with VM provisioning.
+1.  **Provision Infrastructure**: Runs `tofu apply` (Azure/Proxmox).
+2.  **Configure Servers**: Runs `ansible-playbook` against the live inventory.
 
 ## Setup Instructions
 
-If you fork this repository, you must configure the following **GitHub Secrets** for the pipeline to work.
+### Secrets
+To enable the Production deployment, you must set the following **GitHub Secrets**:
 
-### 1. Azure Credentials
-You need a Service Principal with `Contributor` access to your subscription.
-
-Required Secrets:
-*   `AZURE_CLIENT_ID`: The App ID of the Service Principal.
-*   `AZURE_CLIENT_SECRET`: The password/secret for the Service Principal.
-*   `AZURE_TENANT_ID`: Your Azure Tenant ID.
-*   `AZURE_SUBSCRIPTION_ID`: Your Azure Subscription ID.
-
-### 2. Application Secrets
-*   `SSH_PUBLIC_KEY`: The content of your `~/.ssh/id_rsa.pub`. This key will be added to all VMs for SSH access.
-*   `DUCKDNS_TOKEN`: Your DuckDNS API token (used to update the domain IP).
+- `AZURE_CREDENTIALS`: (For Azure) Service Principal JSON.
+- `SSH_PRIVATE_KEY`: Key to access the Bastion/VMs.
+- `DUCKDNS_TOKEN`: Token for Dynamic DNS updates.
+- `DB_PASSWORD`: Password for the PostgreSQL user.
+- `ADMIN_PASSWORD`: Django Admin password.
 
 ## Troubleshooting
 
-### "QuotaExceeded" Error
-If the deployment fails with a Quota error, check your Azure region's limits for the VM SKU (e.g., `Standard_B2s_v2`). You may need to request a quota increase or change the region in `deploy.sh` (for manual) or the Bicep parameters.
-
-### Certificate Issues
-The pipeline deploys the infrastructure, but the SSL certificate generation happens *inside* the Proxy VM on boot.
-*   Check the logs on the Proxy VM: `/var/log/cloud-init-output.log`
-*   Ensure DuckDNS is pointing to the correct IP.
+- **Local Test Failures**: Run `./scripts/ci_local_test.sh` locally to debug. It reproduces the exact steps the CI performs.
+- **Ansible Errors**: Check the detailed logs in the GitHub Action run. Use `-vvv` in the Ansible command for more verbosity if needed.

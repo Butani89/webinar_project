@@ -1,36 +1,28 @@
 # Infrastructure Architecture
 
-This document describes the cloud infrastructure for "Svamparnas Värld", provisioned on **Microsoft Azure**.
+This document describes the platform-agnostic infrastructure for "Svamparnas Värld". The system allows deployment to **Azure**, **Proxmox**, or a **Local Docker** environment using **OpenTofu**.
 
 ## High-Level Overview
 
-The infrastructure follows a **tiered architecture** to ensure security and separation of concerns. All resources are defined as code using **Azure Bicep** (`infra/main.bicep`).
+The infrastructure defines a standard topology regardless of the underlying provider.
+
+- **Provisioning**: OpenTofu (`infra/opentofu/`)
+- **Configuration**: Ansible (`infra/ansible/`)
 
 ```mermaid
 graph TD;
-    subgraph "Internet"
-        User_Web[Web User]
-        Developer[Developer]
-        GH_Action[GitHub Actions]
+    subgraph "Public Zone"
+        Proxy["FrontendProxyVM (Debian 13)"]
+        Bastion["BastionVM (Debian 13)"]
     end
 
-    subgraph "Azure Resource Group"
-        subgraph "Virtual Network (10.0.0.0/16)"
-            subgraph "Public Subnet"
-                Proxy["FrontendProxyVM (Debian 13)"]
-                Bastion["bastionVM (Debian 13)"]
-            end
-
-            subgraph "Private Subnet (Virtual)"
-                Backend["BackendVM (Debian 13)"]
-                DB["DatabaseVM (Debian 13)"]
-            end
-        end
+    subgraph "Private Zone"
+        Backend["BackendVM (Debian 13)"]
+        DB["DatabaseVM (Debian 13)"]
     end
 
-    User_Web -- HTTPS (443) --> Proxy
+    User_Web[Web User] -- HTTPS (443) --> Proxy
     Developer -- SSH (22) --> Bastion
-    GH_Action -- ARM Deployment --> Azure Resource Group
 
     Proxy -- Reverse Proxy (80) --> Backend
     Backend -- SQL (5432) --> DB
@@ -39,62 +31,44 @@ graph TD;
     Bastion -- SSH Tunnel --> DB
 ```
 
-### Data Flow: User Registration
-
-The following sequence diagram illustrates how a user registration request travels through the system.
-
-```mermaid
-sequenceDiagram
-    participant U as User (Browser)
-    participant P as Nginx Proxy
-    participant B as Flask Backend
-    participant D as PostgreSQL DB
-
-    U->>P: POST /api/register (JSON)
-    Note right of U: HTTPS (Port 443)
-    P->>B: Proxy Request (HTTP Port 80, Internal)
-    B->>B: Validate Input
-    alt Invalid Input
-        B-->>P: 400 Bad Request
-        P-->>U: 400 Bad Request
-    else Valid Input
-        B->>D: INSERT INTO attendees...
-        D-->>B: Success
-        B-->>P: 201 Created
-        P-->>U: 201 Created
-    end
-```
-
 ## Components
 
-### 1. Network & Security
-*   **Virtual Network (VNet):** A single VNet (`SvampVNet`) containing all resources.
-*   **Network Security Groups (NSGs):**
-    *   `ProxyNSG`: Allows Inbound HTTP (80) and HTTPS (443).
-    *   `BastionNSG`: Allows Inbound SSH (22).
-    *   `InternalNSG`: Blocks direct internet access to Backend and Database. Only allows traffic within the VNet.
+### 1. Virtual Machines / Containers (Debian 13)
 
-### 2. Virtual Machines (Debian 13)
-
-| Server | Role | Public Access | Notes |
+| Server | Role | Access | Notes |
 | :--- | :--- | :--- | :--- |
-| **FrontendProxyVM** | Nginx Reverse Proxy | Yes (80/443) | Handles SSL termination (Certbot) and forwards requests to Backend. Updates DuckDNS IP. |
-| **bastionVM** | Jump Host | Yes (22) | The *only* entry point for SSH management. |
-| **BackendVM** | Python Flask App | No | Runs the application logic. Connects to Database. |
-| **DatabaseVM** | PostgreSQL Database | No | Stores application data. |
+| **FrontendProxyVM** | Nginx Reverse Proxy | Public 80/443 | Terminates SSL (Let's Encrypt), updates DuckDNS, proxies to Backend. |
+| **BastionVM** | Jump Host | Public 22 | Single entry point for SSH management. |
+| **BackendVM** | Django + Gunicorn | Private | Runs the application logic and API. |
+| **DatabaseVM** | PostgreSQL | Private | Stores application data. |
+
+### 2. Networking
+
+*   **Azure**: Uses a VNet with NSGs strictly controlling access.
+*   **Proxmox**: Uses Linux Bridges/VLANs to isolate the private zone.
+*   **Local**: Uses a shared Docker Network.
+
+## Configuration Management (Ansible)
+
+Unlike the previous Cloud-init setup, we now use **Ansible** for full lifecycle management.
+
+### Roles
+1.  **`common`**: Installs basic tools (`vim`, `curl`, `git`) and sets Timezone.
+2.  **`database`**: Installs PostgreSQL, creates the DB/User, and configures `pg_hba.conf` to allow access from the internal subnet.
+3.  **`backend`**:
+    *   Installs Python, Node.js, Nginx.
+    *   Clones the repository.
+    *   Builds Frontend assets.
+    *   Migrates Database.
+    *   Configures Systemd for Gunicorn.
+4.  **`proxy`**:
+    *   Installs Nginx, Certbot.
+    *   Configures DuckDNS cron job.
+    *   Obtains SSL Certificates.
 
 ## Secrets Management
 
-We do **not** store secrets in source code.
+Secrets are injected at runtime via environment variables or Ansible Vault (future improvement).
 
-*   **Database Password:** Generated randomly at runtime (during deployment) or passed via GitHub Secrets. Injected into VMs via Bicep `customData`.
-*   **DuckDNS Token:** Passed as a secure parameter during deployment.
-*   **SSH Keys:** Public keys are injected during provisioning.
-
-## Configuration Management
-
-We use **Cloud-init** (via Bicep `customData` property) to configure VMs on first boot:
-1.  Updates `apt` packages.
-2.  Installs software (Nginx, Python, Postgres).
-3.  Injects environment variables (`DB_HOST`, `DB_PASSWORD`).
-4.  Sets up systemd services.
+*   **Database Credentials**: Passed to Ansible execution.
+*   **DuckDNS Token**: Passed to the Proxy role.

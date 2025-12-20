@@ -3,7 +3,7 @@ name: Deploy Infrastructure
 on:
   push:
     branches:
-      - main
+      - production
 
   workflow_dispatch:
 
@@ -35,11 +35,11 @@ jobs:
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: SvamparnasRG_Prod
-          template: ./infra/main.bicep
+          template: ./infra/production.bicep
           parameters: >
             adminPublicKey="${{ secrets.SSH_PUBLIC_KEY }}"
             dbPassword="${{ steps.secrets.outputs.DB_PASSWORD }}"
             duckDnsToken="${{ secrets.DUCKDNS_TOKEN }}"
             adminPassword="${{ secrets.ADMIN_PASSWORD }}"
-            duckDnsDomain="${{ secrets.DUCKDNS_DOMAIN }}"
+            duckDnsDoproduction="${{ secrets.DUCKDNS_DOMAIN }}"
           failOnStdErr: false

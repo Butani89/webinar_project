@@ -4,7 +4,7 @@
 
 We follow a strict branching model to ensure stability in production.
 
-- **`main`**: Production. Only deployed code lives here. **Do not push directly.**
+- **`production`**: Production. Only deployed code lives here. **Do not push directly.**
 - **`development`**: Integration. All features are merged here first.
 - **`feature/*`**: Feature branches. Created from `development`.
 
@@ -32,7 +32,7 @@ We follow a strict branching model to ensure stability in production.
    Once approved and CI passes, merge into `development`.
 
 5. **Release to Production**:
-   When ready for a release, merge `development` into `main`.
+   When ready for a release, merge `development` into `production`.
    This triggers the automated deployment to the production environment.
 
 ## Code Standards

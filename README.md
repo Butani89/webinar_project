@@ -38,9 +38,12 @@ The project is decoupled into a backend (API) and a frontend (SPA).
 
 ## Deployment
 
-The project infrastructure is now managed as code (IaC) using OpenTofu and Ansible.
+The project uses a strict Git-based workflow for deployment.
 
-- **Infrastructure Provisioning**: OpenTofu (`infra/opentofu/`)
-- **Configuration Management**: Ansible (`infra/ansible/`)
+- **Production Branch (`production`)**: Pushes to this branch trigger the automated deployment pipeline which provisions infrastructure via **OpenTofu** and configures servers via **Ansible**.
+- **Development Branch (`development`)**: Pushes here trigger integration tests on a local Docker-based replica of the infrastructure.
 
-See `infra/README.md` for detailed deployment instructions.
+For detailed architecture and setup instructions, see:
+- [Infrastructure Architecture](docs/deployment/architecture.md)
+- [CI/CD Workflow](docs/deployment/ci-cd.md)
+- [Infrastructure README](infra/README.md)
