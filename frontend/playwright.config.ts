@@ -12,6 +12,7 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   projects: [
+    /* Desktop Browsers */
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
@@ -23,6 +24,22 @@ export default defineConfig({
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
+    },
+
+    /* Mobile Devices */
+    {
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'] },
+    },
+    {
+      name: 'Mobile Safari',
+      use: { ...devices['iPhone 12'] },
+    },
+
+    /* Tablets */
+    {
+      name: 'Tablet Safari',
+      use: { ...devices['iPad (gen 7)'] },
     },
   ],
   webServer: {

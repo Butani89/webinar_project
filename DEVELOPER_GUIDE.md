@@ -15,6 +15,8 @@
 - **Backend**: Pytest (located in `backend/webinar/tests/`).
 - **Frontend Unit**: Vitest (located alongside components).
 - **E2E**: Playwright (located in `frontend/e2e/`).
+    - Supports multiple platforms: Desktop (Chrome, Firefox, Safari), Mobile (Android/Pixel, iOS/iPhone), and Tablet (iPad).
+    - Includes responsive design verification.
 
 ## API Documentation
 
