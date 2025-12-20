@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Calendar, Mail, User, Building } from 'lucide-vue-next'
+import { Calendar, Mail, User, Building, Send, CheckCircle2, AlertCircle } from 'lucide-vue-next'
 
 const form = ref({
   name: '',
@@ -27,13 +27,13 @@ const register = async () => {
     const data = await response.json()
     if (response.status === 201) {
       feedback.value = {
-        message: `Tack ${form.value.name}! Din plats är reserverad.`,
+        message: `Välkommen ombord, ${form.value.name}!`,
         isError: false,
         imageUrl: data.image_url
       }
       form.value = { name: '', email: '', company: '', experience: 'nyborjare', date: '2025-12-24' }
     } else {
-      throw new Error(data.message || 'Registreringen misslyckades')
+      throw new Error(data.message || 'Ett fel uppstod vid registreringen.')
     }
   } catch (e: any) {
     feedback.value = { message: e.message, isError: true, imageUrl: '' }
@@ -44,65 +44,92 @@ const register = async () => {
 </script>
 
 <template>
-  <section id="register" class="glass-card p-8 md:p-12">
-    <h3 class="mb-8 text-2xl font-bold text-center text-mushroom-dark">Registrera din plats</h3>
-    <form @submit.prevent="register" class="grid gap-6">
-      <div class="grid gap-6 md:grid-cols-2">
-        <div class="space-y-2">
-          <label class="block text-sm font-semibold text-gray-700">Namn</label>
-          <div class="relative">
-            <User class="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-            <input v-model="form.name" type="text" required class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-mushroom-dark focus:outline-none transition-all" placeholder="Ditt fullständiga namn">
+  <section id="register" class="py-24 px-4 bg-mushroom-dark relative overflow-hidden">
+    <!-- Background Flare -->
+    <div class="absolute inset-0 bg-forest-pattern opacity-10"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-mushroom-accent/20 rounded-full blur-[160px] pointer-events-none"></div>
+
+    <div class="max-w-3xl mx-auto relative z-10">
+      <div class="bg-white rounded-[40px] shadow-2xl p-8 md:p-16">
+        <div class="text-center mb-12">
+          <div class="w-16 h-16 bg-mushroom-light rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <Send class="w-8 h-8 text-mushroom-dark" />
           </div>
+          <h2 class="text-3xl md:text-4xl font-black text-mushroom-dark mb-4">Säkra Din Plats Idag</h2>
+          <p class="text-gray-500">Antalet platser är begränsat för att säkerställa kvaliteten i den interaktiva sessionen.</p>
         </div>
-        <div class="space-y-2">
-          <label class="block text-sm font-semibold text-gray-700">E-post</label>
-          <div class="relative">
-            <Mail class="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-            <input v-model="form.email" type="email" required class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-mushroom-dark focus:outline-none transition-all" placeholder="namn@exempel.se">
+
+        <form @submit.prevent="register" class="space-y-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-3">
+              <label class="text-sm font-bold text-mushroom-dark flex items-center gap-2">
+                <User class="w-4 h-4" /> Namn
+              </label>
+              <input v-model="form.name" type="text" required class="w-full px-6 py-4 bg-mushroom-light border-2 border-transparent focus:border-mushroom-medium/20 rounded-2xl focus:outline-none transition-all placeholder:opacity-30" placeholder="Ditt fullständiga namn">
+            </div>
+            <div class="space-y-3">
+              <label class="text-sm font-bold text-mushroom-dark flex items-center gap-2">
+                <Mail class="w-4 h-4" /> E-post
+              </label>
+              <input v-model="form.email" type="email" required class="w-full px-6 py-4 bg-mushroom-light border-2 border-transparent focus:border-mushroom-medium/20 rounded-2xl focus:outline-none transition-all placeholder:opacity-30" placeholder="namn@exempel.se">
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="space-y-2">
-        <label class="block text-sm font-semibold text-gray-700">Organisation (Valfritt)</label>
-        <div class="relative">
-          <Building class="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-          <input v-model="form.company" type="text" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-mushroom-dark focus:outline-none transition-all" placeholder="Universitet eller Företag">
-        </div>
-      </div>
-
-      <div class="grid gap-6 md:grid-cols-2">
-        <div class="space-y-2">
-          <label class="block text-sm font-semibold text-gray-700">Erfarenhetsnivå</label>
-          <select v-model="form.experience" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-mushroom-dark focus:outline-none bg-white">
-            <option value="nyborjare">Nybörjare</option>
-            <option value="intresserad">Intresserad amatör</option>
-            <option value="expert">Expert/Yrkesverksam</option>
-          </select>
-        </div>
-        <div class="space-y-2">
-          <label class="block text-sm font-semibold text-gray-700">Session</label>
-          <div class="relative">
-            <Calendar class="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-            <select v-model="form.date" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-mushroom-dark focus:outline-none bg-white">
-              <option value="2025-12-24">Huvudsession - 24 dec 2025</option>
-            </select>
+          <div class="space-y-3">
+            <label class="text-sm font-bold text-mushroom-dark flex items-center gap-2">
+              <Building class="w-4 h-4" /> Organisation (Valfritt)
+            </label>
+            <input v-model="form.company" type="text" class="w-full px-6 py-4 bg-mushroom-light border-2 border-transparent focus:border-mushroom-medium/20 rounded-2xl focus:outline-none transition-all placeholder:opacity-30" placeholder="T.ex. Universitet eller Företag">
           </div>
-        </div>
-      </div>
 
-      <button :disabled="isSubmitting" type="submit" class="w-full py-4 mt-4 text-xl font-bold text-white transition-all transform bg-mushroom-dark rounded-xl hover:bg-opacity-90 active:scale-95 disabled:opacity-50 shadow-lg">
-        {{ isSubmitting ? 'Bearbetar...' : 'Anmäl mig till webinaret' }}
-      </button>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-3">
+              <label class="text-sm font-bold text-mushroom-dark">Erfarenhetsnivå</label>
+              <select v-model="form.experience" class="w-full px-6 py-4 bg-mushroom-light border-2 border-transparent focus:border-mushroom-medium/20 rounded-2xl focus:outline-none transition-all appearance-none cursor-pointer">
+                <option value="nyborjare">Nybörjare</option>
+                <option value="intresserad">Intresserad amatör</option>
+                <option value="expert">Expert/Yrkesverksam</option>
+              </select>
+            </div>
+            <div class="space-y-3">
+              <label class="text-sm font-bold text-mushroom-dark flex items-center gap-2">
+                <Calendar class="w-4 h-4" /> Session
+              </label>
+              <select v-model="form.date" class="w-full px-6 py-4 bg-mushroom-light border-2 border-transparent focus:border-mushroom-medium/20 rounded-2xl focus:outline-none transition-all appearance-none cursor-pointer">
+                <option value="2025-12-24">Huvudsession - 24 dec 2025</option>
+              </select>
+            </div>
+          </div>
 
-      <div v-if="feedback.message" :class="['p-6 mt-6 rounded-2xl text-center', feedback.isError ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-green-50 text-mushroom-dark border border-green-100 shadow-inner']">
-        <p class="font-bold">{{ feedback.message }}</p>
-        <div v-if="feedback.imageUrl" class="mt-4">
-          <p class="text-sm mb-3">Din unika bio-genererade svamp-avatar:</p>
-          <img :src="feedback.imageUrl" alt="Avatar" class="w-24 h-24 mx-auto rounded-xl shadow-md border-2 border-white">
-        </div>
+          <button :disabled="isSubmitting" type="submit" class="group relative w-full py-5 bg-mushroom-dark hover:bg-black text-white font-black text-xl rounded-2xl transition-all shadow-xl hover:shadow-black/20 overflow-hidden active:scale-95 disabled:opacity-50">
+            <span class="relative z-10 flex items-center justify-center gap-3">
+              {{ isSubmitting ? 'Behandlar anmälan...' : 'Anmäl Mig Nu' }}
+            </span>
+            <div class="absolute inset-0 bg-gradient-to-r from-mushroom-medium to-mushroom-dark opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          </button>
+        </form>
+
+        <!-- Feedback UI -->
+        <transition enter-active-class="animate-fade-in-up" leave-active-class="opacity-0">
+          <div v-if="feedback.message" :class="[
+            'mt-12 p-8 rounded-3xl text-center border-2 transition-all',
+            feedback.isError ? 'bg-red-50 border-red-100 text-red-700' : 'bg-mushroom-light border-mushroom-medium/10 text-mushroom-dark'
+          ]">
+            <div class="flex flex-col items-center gap-4">
+              <component :is="feedback.isError ? AlertCircle : CheckCircle2" class="w-12 h-12 mb-2" />
+              <div class="text-2xl font-black">{{ feedback.message }}</div>
+              
+              <div v-if="feedback.imageUrl" class="mt-4">
+                <p class="text-sm opacity-60 mb-6">Din personliga bio-genererade svamp-avatar är redo:</p>
+                <div class="relative inline-block">
+                  <div class="absolute inset-0 bg-mushroom-accent/40 blur-2xl rounded-full"></div>
+                  <img :src="feedback.imageUrl" alt="Avatar" class="relative w-32 h-32 rounded-3xl shadow-2xl border-4 border-white">
+                </div>
+              </div>
+            </div>
+          </div>
+        </transition>
       </div>
-    </form>
+    </div>
   </section>
 </template>

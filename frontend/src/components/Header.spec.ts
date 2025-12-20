@@ -5,6 +5,6 @@ import Header from './Header.vue'
 describe('Header.vue', () => {
   it('renders title correctly', () => {
     const wrapper = mount(Header)
-    expect(wrapper.text()).toContain('Svamparnas Fascinerande Värld')
+    expect(wrapper.text()).toContain('Svamparnas Värld')
   })
 })
