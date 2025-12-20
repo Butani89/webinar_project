@@ -11,10 +11,12 @@
 - Follow Vue 3 Style Guide (using `<script setup>` and TypeScript).
 - Use Tailwind utility classes for styling.
 
+## Testing
+- **Backend**: Pytest (located in `backend/webinar/tests/`).
+- **Frontend Unit**: Vitest (located alongside components).
+- **E2E**: Playwright (located in `frontend/e2e/`).
+
 ## API Documentation
-The API endpoints are located under `/api/`:
-- `POST /api/register/`: Register a new attendee.
-- `GET /api/attendees/`: List all attendees (requires `X-Admin-Password` header).
 
 ## Adding New Features
 1. Create a feature branch.

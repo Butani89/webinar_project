@@ -33,6 +33,9 @@ The project is decoupled into a backend (API) and a frontend (SPA).
 ### Frontend Tests
 `cd frontend && npm test`
 
+### E2E Tests (Playwright)
+`cd frontend && npm run test:e2e`
+
 ## Deployment
 
 The project is automatically deployed via GitHub Actions when pushing to the `main` branch.
