@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import Header from './components/Header.vue'
 import Hero from './components/Hero.vue'
+import BackgroundScene from './components/BackgroundScene.vue'
 import Speakers from './components/Speakers.vue'
 import Agenda from './components/Agenda.vue'
 import RegisterForm from './components/RegisterForm.vue'
@@ -32,6 +33,7 @@ onMounted(() => {
 
 <template>
   <div class="min-h-screen selection:bg-mushroom-accent selection:text-white">
+    <BackgroundScene />
     <Header />
 
     <main>

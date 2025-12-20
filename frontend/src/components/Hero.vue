@@ -7,7 +7,7 @@ defineProps<{
 </script>
 
 <template>
-  <section class="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden bg-mushroom-dark pt-20">
+  <section class="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden bg-transparent pt-20">
     <!-- Background Decor -->
     <div class="absolute inset-0 opacity-20 pointer-events-none bg-forest-pattern"></div>
     <div class="absolute -top-24 -left-24 w-96 h-96 bg-mushroom-medium rounded-full blur-[120px] opacity-30"></div>
