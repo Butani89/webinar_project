@@ -3,32 +3,61 @@
 @tailwind utilities;
 
 @layer base {
+
   body {
-    @apply bg-mushroom-light text-gray-900 overflow-x-hidden;
+
+    @apply bg-brand-bone text-brand-forest overflow-x-hidden;
+
     -webkit-font-smoothing: antialiased;
+
     -moz-osx-font-smoothing: grayscale;
+
   }
+
 }
+
+
 
 @layer components {
+
   .glass-card {
+
     @apply bg-white bg-opacity-80 backdrop-blur-md border border-white border-opacity-20 rounded-[32px] shadow-2xl;
+
   }
+
 }
+
+
 
 /* Custom Scrollbar */
+
 ::-webkit-scrollbar {
+
   width: 10px;
+
 }
+
+
 
 ::-webkit-scrollbar-track {
-  @apply bg-mushroom-light;
+
+  @apply bg-brand-mist;
+
 }
+
+
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-mushroom-dark rounded-full border-4 border-mushroom-light;
+
+  @apply bg-brand-forest rounded-full border-4 border-brand-mist;
+
 }
 
+
+
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-mushroom-medium;
+
+  @apply bg-brand-mycelium;
+
 }

@@ -7,14 +7,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        mushroom: {
-          dark: '#1a3a16', // Deeper forest green
-          medium: '#2d5a27',
-          light: '#f0f4f0',
-          accent: '#d97706', // More vibrant orange
+        brand: {
+          forest: '#0f1c0e',
+          mycelium: '#2d5a27',
           gold: '#f59e0b',
-          earth: '#78350f',
-          cream: '#fffdfa'
+          amber: '#d97706',
+          earth: '#451a03',
+          mist: '#ecf3ec',
+          bone: '#f8fafc'
         }
       },
       backgroundImage: {

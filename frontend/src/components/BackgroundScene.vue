@@ -35,7 +35,7 @@ const init = () => {
   // Create "Nodes" (Mushroom spores/hubs)
   const nodeCount = 40;
   const nodes: THREE.Vector3[] = [];
-  const nodeMaterial = new THREE.MeshBasicMaterial({ color: 0xd97706, transparent: true, opacity: 0.4 });
+  const nodeMaterial = new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.4 }); // brand-gold
   const nodeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
 
   for (let i = 0; i < nodeCount; i++) {
@@ -53,7 +53,7 @@ const init = () => {
 
   // Create "Hyphae" (Connections)
   const lineMaterial = new THREE.LineBasicMaterial({ 
-    color: 0x2d5a27, 
+    color: 0x2d5a27, // brand-mycelium
     transparent: true, 
     opacity: 0.15,
     blending: THREE.AdditiveBlending
@@ -73,7 +73,7 @@ const init = () => {
   // Animated Waves / Surfaces
   const planeGeometry = new THREE.PlaneGeometry(50, 50, 60, 60);
   const planeMaterial = new THREE.MeshBasicMaterial({
-    color: 0xd97706,
+    color: 0xd97706, // brand-amber
     wireframe: true,
     transparent: true,
     opacity: 0.08,
@@ -87,7 +87,7 @@ const init = () => {
   // Secondary "deep" surface
   const plane2 = plane.clone();
   plane2.position.y = -7;
-  (plane2.material as THREE.MeshBasicMaterial).color.set(0x2d5a27);
+  (plane2.material as THREE.MeshBasicMaterial).color.set(0x0f1c0e); // brand-forest
   (plane2.material as THREE.MeshBasicMaterial).opacity = 0.05;
   scene.add(plane2);
 
@@ -142,9 +142,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="container" class="fixed inset-0 pointer-events-none z-[-1] bg-mushroom-dark overflow-hidden">
+  <div ref="container" class="fixed inset-0 pointer-events-none z-[-1] bg-brand-forest overflow-hidden">
     <!-- Overlay for depth -->
-    <div class="absolute inset-0 bg-gradient-to-b from-mushroom-dark/20 via-transparent to-mushroom-dark/80"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-brand-forest/20 via-transparent to-brand-forest/80"></div>
   </div>
 </template>
 

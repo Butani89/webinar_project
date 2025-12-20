@@ -32,7 +32,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen selection:bg-mushroom-accent selection:text-white">
+  <div class="min-h-screen selection:bg-brand-gold selection:text-white">
     <BackgroundScene />
     <Header />
 
@@ -43,7 +43,7 @@ onMounted(() => {
       <RegisterForm />
     </main>
 
-    <footer class="bg-mushroom-dark text-white pt-24 pb-12 px-6">
+    <footer class="bg-brand-forest text-white pt-24 pb-12 px-6">
       <div class="max-w-6xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div class="col-span-1 md:col-span-2">
@@ -62,7 +62,7 @@ onMounted(() => {
           </div>
           
           <div>
-            <h4 class="font-bold mb-6 text-mushroom-gold">Länkar</h4>
+            <h4 class="font-bold mb-6 text-brand-gold">Länkar</h4>
             <ul class="space-y-4 text-white/60">
               <li><a href="#about" class="hover:text-white transition-colors">Om Eventet</a></li>
               <li><a href="#speakers" class="hover:text-white transition-colors">Föreläsare</a></li>
@@ -72,7 +72,7 @@ onMounted(() => {
           </div>
 
           <div>
-            <h4 class="font-bold mb-6 text-mushroom-gold">Kontakt</h4>
+            <h4 class="font-bold mb-6 text-brand-gold">Kontakt</h4>
             <ul class="space-y-4 text-white/60">
               <li class="flex items-center gap-3"><Mail class="w-4 h-4" /> event@svampar.se</li>
               <li class="text-sm">Loopaware AB<br>Mushroom Street 42<br>Stockholm, Sweden</li>
