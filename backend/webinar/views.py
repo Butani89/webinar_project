@@ -1,6 +1,6 @@
 import os
 from django.conf import settings
-from rest_framework import status, views
+from rest_framework import status, views, permissions
 from rest_framework.response import Response
 from .models import Attendee
 from .serializers import AttendeeSerializer
@@ -10,6 +10,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 class RegisterAttendeeView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = [] # Public endpoint, no session/token required
+
     def post(self, request):
         serializer = AttendeeSerializer(data=request.data)
         if serializer.is_valid():

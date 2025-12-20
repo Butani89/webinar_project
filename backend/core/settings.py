@@ -3,10 +3,15 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-mushrooms-2025')
-DEBUG = os.environ.get('FLASK_ENV') == 'development'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+DEBUG = os.environ.get('ENVIRONMENT') == 'development'
 
-ALLOWED_HOSTS = ['*']
+if not SECRET_KEY and not DEBUG:
+    raise ValueError("DJANGO_SECRET_KEY must be set in production environment.")
+
+SECRET_KEY = SECRET_KEY or 'django-insecure-mushrooms-2025'
+
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -84,6 +89,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_ALL_ORIGINS = True # In production, restrict this.
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',')
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
 
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')

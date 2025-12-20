@@ -5,3 +5,6 @@ psycopg2-binary
 Pillow
 gunicorn
 python-dotenv
+pytest
+pytest-django
+factory-boy

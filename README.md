@@ -1,69 +1,41 @@
 # Webinar Registration Project ("Svamparnas Värld")
 
-This project is a full-stack web application for a fictional webinar, "Svamparnas Värld" (The World of Mushrooms). It includes a Python Flask backend, a PostgreSQL database, and a static HTML/CSS/JavaScript frontend. The entire infrastructure is provisioned on Microsoft Azure using Azure CLI scripts.
+A modern, full-stack application for managing webinar registrations, built with Django, Vue.js 3, and Tailwind CSS.
 
 ## Architecture
 
-The infrastructure is designed with security and separation of concerns in mind, consisting of four virtual machines within a single Virtual Network.
+The project is decoupled into a backend (API) and a frontend (SPA).
 
-```mermaid
-graph TD;
-    subgraph "Internet"
-        User_Web[Web User]
-        Developer[Developer]
-    end
+- **Backend**: Django + Django REST Framework.
+- **Frontend**: Vue 3 (Vite) + Tailwind CSS + Lucide Icons.
+- **Infrastructure**: Azure VNet with dedicated Proxy (Nginx), Backend (Django/Gunicorn), and Database (PostgreSQL) VMs.
 
-    subgraph "Azure VNet (10.0.0.0/16)"
-        subgraph "FrontendProxyVM (Public IP)"
-            Nginx[Nginx Reverse Proxy]
-        end
+## Development
 
-        subgraph "BackendVM (Internal)"
-            App[Flask App]
-        end
+### Backend Setup
+1. `cd backend`
+2. `python3 -m venv venv`
+3. `source venv/bin/activate`
+4. `pip install -r ../requirements.txt`
+5. `python manage.py migrate`
+6. `python manage.py runserver`
 
-        subgraph "DatabaseVM (Internal)"
-            DB[(PostgreSQL)]
-        end
+### Frontend Setup
+1. `cd frontend`
+2. `npm install`
+3. `npm run dev`
 
-        subgraph "bastionVM (Public IP)"
-            Bastion[Bastion Host]
-        end
-    end
+## Testing
 
-    User_Web -- Port 80/443 --> Nginx;
-    Developer -- SSH (Port 22) --> Bastion;
+### Backend Tests
+`cd backend && pytest`
 
-    Bastion -- SSH (Internal IP) --> App;
-    Bastion -- SSH (Internal IP) --> Nginx;
-    Bastion -- SSH (Internal IP) --> DB;
-
-    Nginx -- HTTP (Internal IP) --> App;
-    App -- SQL (Internal IP) --> DB;
-```
-
-### VM Roles
-
--   `FrontendProxyVM`: A Debian 13 VM running Nginx as a reverse proxy. It's the only machine that accepts public web traffic (Port 80/443) and forwards it to the `BackendVM`.
--   `BackendVM`: A Debian 13 VM running the Python Flask application. It processes requests and communicates with the `DatabaseVM`. It is not directly accessible from the internet.
--   `DatabaseVM`: A Debian 13 VM running PostgreSQL. It stores all application data and is only accessible from within the VNet.
--   `bastionVM`: A Debian 13 VM that serves as a secure jump-box. It's the only machine that accepts SSH traffic from the internet, providing a secure entry point for administrators.
-
----
+### Frontend Tests
+`cd frontend && npm test`
 
 ## Deployment
 
-We support both manual deployment (for testing) and automated CI/CD (for production).
+The project is automatically deployed via GitHub Actions when pushing to the `main` branch.
 
-*   **[Infrastructure Architecture](docs/deployment/architecture.md):** Learn about the VNet, VMs, and Security.
-*   **[Manual Deployment Guide](docs/deployment/manual.md):** How to deploy using the CLI scripts.
-*   **[CI/CD Guide](docs/deployment/ci-cd.md):** How to set up GitHub Actions for automation.
-
-### Quick Start (Manual)
-
-1.  **Prerequisites:** Azure CLI installed and logged in.
-2.  **Run:**
-    ```bash
-    ./deploy.sh
-    ```
-
+- **Infrastructure Deployment**: Managed by Bicep templates.
+- **Application Update**: Uses `az vm run-command` to pull latest code and rebuild on the BackendVM.
