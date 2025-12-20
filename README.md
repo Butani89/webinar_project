@@ -8,7 +8,7 @@ The project is decoupled into a backend (API) and a frontend (SPA).
 
 - **Backend**: Django + Django REST Framework.
 - **Frontend**: Vue 3 (Vite) + Tailwind CSS + Lucide Icons.
-- **Infrastructure**: Azure VNet with dedicated Proxy (Nginx), Backend (Django/Gunicorn), and Database (PostgreSQL) VMs.
+- **Infrastructure**: Platform-agnostic setup using OpenTofu (Azure & Proxmox) and Ansible.
 
 ## Development
 
@@ -38,7 +38,9 @@ The project is decoupled into a backend (API) and a frontend (SPA).
 
 ## Deployment
 
-The project is automatically deployed via GitHub Actions when pushing to the `main` branch.
+The project infrastructure is now managed as code (IaC) using OpenTofu and Ansible.
 
-- **Infrastructure Deployment**: Managed by Bicep templates.
-- **Application Update**: Uses `az vm run-command` to pull latest code and rebuild on the BackendVM.
+- **Infrastructure Provisioning**: OpenTofu (`infra/opentofu/`)
+- **Configuration Management**: Ansible (`infra/ansible/`)
+
+See `infra/README.md` for detailed deployment instructions.

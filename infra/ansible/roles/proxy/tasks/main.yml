@@ -1,0 +1,76 @@
+---
+- name: Install Nginx and Certbot
+  apt:
+    name:
+      - nginx
+      - certbot
+      - python3-certbot-nginx
+    state: present
+
+- name: Create certbot webroot
+  file:
+    path: /var/www/certbot
+    state: directory
+    mode: '0755'
+
+- name: Check if certificate exists
+  stat:
+    path: "/etc/letsencrypt/live/{{ domain_name }}/fullchain.pem"
+  register: cert_exists
+
+- name: Create dummy certificate if missing (to start Nginx)
+  shell: |
+    mkdir -p /etc/letsencrypt/live/{{ domain_name }}
+    openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
+      -keyout /etc/letsencrypt/live/{{ domain_name }}/privkey.pem \
+      -out /etc/letsencrypt/live/{{ domain_name }}/fullchain.pem \
+      -subj "/CN=localhost"
+  when: not cert_exists.stat.exists
+
+- name: Configure Nginx
+  template:
+    src: nginx_proxy.conf.j2
+    dest: /etc/nginx/sites-available/proxy
+  notify: Restart Nginx
+
+- name: Enable Nginx site
+  file:
+    src: /etc/nginx/sites-available/proxy
+    dest: /etc/nginx/sites-enabled/proxy
+    state: link
+  notify: Restart Nginx
+
+- name: Remove default Nginx site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Restart Nginx
+
+- name: Flush handlers to ensure Nginx is running for Certbot
+  meta: flush_handlers
+
+- name: Obtain real certificate
+  shell: |
+    certbot certonly --webroot -w /var/www/certbot \
+      -d {{ domain_name }} \
+      --non-interactive --agree-tos -m {{ admin_email }} \
+      --force-renewal
+  when: not cert_exists.stat.exists and domain_name != 'localhost'
+  notify: Restart Nginx
+
+- name: Create DuckDNS script directory
+  file:
+    path: ~/duckdns
+    state: directory
+
+- name: Create DuckDNS update script
+  template:
+    src: duckdns_update.sh.j2
+    dest: ~/duckdns/duck.sh
+    mode: '0700'
+
+- name: Cron job for DuckDNS
+  cron:
+    name: "Update DuckDNS"
+    minute: "*/5"
+    job: "~/duckdns/duck.sh >/dev/null 2>&1"

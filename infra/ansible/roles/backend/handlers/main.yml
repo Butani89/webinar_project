@@ -1,0 +1,1 @@
+- name: Restart Gunicorn\n  systemd:\n    daemon_reload: yes\n    name: gunicorn\n    state: restarted\n    enabled: yes\n\n- name: Restart Nginx\n  service:\n    name: nginx\n    state: restarted

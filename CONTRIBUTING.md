@@ -1,43 +1,39 @@
 # Contributing to Svamparnas Värld
 
-First off, thanks for taking the time to contribute! 🎉
+## Branching Strategy & Workflow
 
-The following is a set of guidelines for contributing to this project. These are mostly guidelines, not rules. Use your best judgment and feel free to propose changes to this document in a pull request.
+We follow a strict branching model to ensure stability in production.
 
-## Code of Conduct
+- **`main`**: Production. Only deployed code lives here. **Do not push directly.**
+- **`development`**: Integration. All features are merged here first.
+- **`feature/*`**: Feature branches. Created from `development`.
 
-This project adheres to a simple code of conduct: Be respectful, be constructive, and help each other learn.
+### Workflow Steps
 
-## How Can I Contribute?
+1. **Create Feature Branch**:
+   ```bash
+   git checkout development
+   git pull
+   git checkout -b feature/my-new-feature
+   ```
 
-### Reporting Bugs
+2. **Develop & Test Locally**:
+   Use the local Docker-based infrastructure to verify your changes.
+   ```bash
+   # Run the full integration test suite
+   ./scripts/ci_local_test.sh
+   ```
 
--   **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/Butani89/webinar_project/issues).
--   If you're unable to find an open issue addressing the problem, open a new one. Be sure to include a **title and clear description**, as well as as much relevant information as possible.
+3. **Open Pull Request**:
+   Push your branch and open a PR targeting `development`.
+   The CI pipeline will run the integration tests automatically.
 
-### Suggesting Enhancements
+4. **Merge to Development**:
+   Once approved and CI passes, merge into `development`.
 
--   Open a new issue with a clear title and detailed description of the suggested enhancement.
+5. **Release to Production**:
+   When ready for a release, merge `development` into `main`.
+   This triggers the automated deployment to the production environment.
 
-### Pull Requests
-
-1.  **Fork the repo** and create your branch from `main`.
-2.  If you've added code that should be tested, add tests.
-3.  If you've changed APIs, update the documentation.
-4.  Ensure the test suite passes.
-5.  Make sure your code lints.
-6.  Issue that pull request!
-
-## Development Setup
-
-See the [README.md](README.md) for detailed instructions on setting up the local development environment (Linux) and deploying to Azure.
-
-### Styleguides
-
--   **Python:** Follow PEP 8.
--   **Infrastructure:** Use Azure Bicep for resources. Shell scripts should be linted (e.g., `shellcheck` or `bash -n`).
--   **Frontend:** Keep HTML/CSS/JS clean and separated.
-
-## License
-
-By contributing, you agree that your contributions will be licensed under its GNU General Public License v2.0 (GPLv2).
+## Code Standards
+... (rest of the file)

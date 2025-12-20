@@ -1,0 +1,17 @@
+[Unit]
+Description=gunicorn daemon
+After=network.target
+
+[Service]
+User={{ ansible_user }}
+Group={{ ansible_user }}
+WorkingDirectory={{ app_dir }}/backend
+Environment="DB_HOST={{ db_host }}"
+Environment="DB_PASSWORD={{ db_password }}"
+Environment="ADMIN_PASSWORD={{ admin_password }}"
+Environment="SECRET_KEY={{ secret_key }}"
+Environment="ALLOWED_HOSTS={{ allowed_hosts }}"
+ExecStart={{ app_dir }}/backend/venv/bin/gunicorn --access-logfile - --workers 3 --bind unix:{{ app_dir }}/backend.sock core.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
