@@ -1,5 +1,7 @@
-Flask
-Flask-Cors
-Flask-SQLAlchemy
+django
+djangorestframework
+django-cors-headers
 psycopg2-binary
 Pillow
+gunicorn
+python-dotenv

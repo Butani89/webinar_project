@@ -31,9 +31,23 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            echo "Triggering git pull on BackendVM..."
+            echo "Triggering full rebuild on BackendVM..."
             az vm run-command invoke \
               --resource-group SvamparnasRG_Prod \
               --name BackendVM \
               --command-id RunShellScript \
-              --scripts "cd /var/www/html && git fetch --all && git reset --hard origin/main && systemctl restart webinar"
+              --scripts "
+                cd /var/www/html && \
+                git fetch --all && \
+                git reset --hard origin/main && \
+                source venv/bin/activate && \
+                pip install -r requirements.txt && \
+                cd frontend && \
+                npm install && \
+                npm run build && \
+                cd ../backend && \
+                python manage.py migrate --noinput && \
+                python manage.py collectstatic --noinput && \
+                systemctl restart webinar && \
+                systemctl restart nginx
+              "

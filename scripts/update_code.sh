@@ -28,8 +28,25 @@ ssh -o StrictHostKeyChecking=no -J azureuser@$BASTION_IP azureuser@$BACKEND_IP <
     sudo git fetch --all
     sudo git reset --hard origin/main
     
+    echo ">> Installing dependencies..."
+    source venv/bin/activate
+    pip install -r requirements.txt
+    
+    echo ">> Building frontend..."
+    cd frontend
+    sudo npm install
+    sudo npm run build
+    cd ..
+    
+    echo ">> Running migrations..."
+    cd backend
+    python manage.py migrate --noinput
+    python manage.py collectstatic --noinput
+    cd ..
+    
     echo ">> Restarting Application Service..."
     sudo systemctl restart webinar
+    sudo systemctl restart nginx
     
     echo ">> Done!"
 EOF
