@@ -41,7 +41,7 @@ ssh -o StrictHostKeyChecking=no -J azureuser@$BASTION_IP azureuser@$BACKEND_IP <
     echo ">> Running migrations..."
     cd backend
     python manage.py migrate --noinput
-    python manage.py collectstatic --noinput
+    python manage.py collectstatic --noinput --clear
     cd ..
     
     echo ">> Restarting Application Service..."

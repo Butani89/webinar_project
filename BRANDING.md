@@ -1,25 +1,22 @@
-# Branding: "Svamparnas Värld"
+# Branding: "Svamparnas Värld" - The Ultimate Experience
 
 ## Vision
-To create a visual identity that bridges the gap between deep biological science and ethereal, organic art. The brand should feel mysterious, sophisticated, and grounded in nature.
+To sell the experience of a lifetime. A journey into the unseen, where biology meets divinity. The brand is no longer just about a webinar; it's about joining an elite circle of explorers uncovering the secrets of the universe through the mycelium network.
 
-## Color Palette
+## Color Palette: The "Evergreen & Gold" Collection
 
 | Name | Hex | Usage |
 | :--- | :--- | :--- |
-| **Deep Forest** | `#0f1c0e` | Main backgrounds, primary text, deep shadows. |
-| **Emerald Mycelium** | `#2d5a27` | Primary brand color, success states, accents. |
-| **Golden Spore** | `#f59e0b` | Call to action, highlights, interactive elements. |
-| **Amber Glow** | `#d97706` | Secondary highlights, bio-luminescence effects. |
-| **Earth Brown** | `#451a03` | Borders, subtle separators, warm shadows. |
-| **Misty Green** | `#ecf3ec` | Light section backgrounds, input fields. |
-| **Bone White** | `#f8fafc` | Main content background, clean readability. |
+| **Obsidian Forest** | `#050a05` | Infinite depth backgrounds, high-contrast typography. |
+| **Luminous Mycelium** | `#1e4d14` | The core life force. Richer, deeper green. |
+| **Divine Spore** | `#fbbf24` | Premium CTAs, the "Golden Ticket" feel. |
+| **Celestial Amber** | `#f59e0b` | Sacred glows and bio-luminescent highlights. |
+| **Primal Earth** | `#2d1a0a` | Structural elements, warm shadows. |
+| **Ether Mist** | `#f0f9f0` | Clean, breathable space for premium readability. |
+| **Pure Marrow** | `#ffffff` | Pure highlights and sharp contrast. |
 
-## Typography
-- **Headings**: Heavy, high-contrast sans-serif (Inter/Segoe UI) with tight tracking.
-- **Body**: Clean, legible sans-serif with ample line height for scientific readability.
-
-## Visual Elements
-- **Glassmorphism**: Semi-transparent layers to simulate biological membranes.
-- **Glows**: Soft radial gradients to represent bio-luminescence.
-- **Organic Motion**: 3D mycelium networks and undulating surfaces.
+## Visual Language: "Ethereal Brutalism"
+- **High Contrast**: Dark backgrounds with glowing gold elements.
+- **Ultra-Premium Typography**: Extra-bold headings with wide character spacing for a cinematic feel.
+- **Motion as Narrative**: Three.js backgrounds that don't just float, but *evolve* as you scroll.
+- **Glassmorphism**: Thicker blur effects and sharper borders to simulate high-end laboratory equipment or crystalline structures.

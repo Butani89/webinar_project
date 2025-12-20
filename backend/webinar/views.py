@@ -1,5 +1,7 @@
 import os
 from django.conf import settings
+from django.shortcuts import redirect
+from inertia import render, share
 from rest_framework import status, views, permissions
 from rest_framework.response import Response
 from .models import Attendee
@@ -9,9 +11,32 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+class IndexView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request):
+        return render(request, 'App', props={
+            'event_date': '2025-12-24',
+            'speakers': [
+                {
+                    'name': 'Dr. M. Myceliaceae',
+                    'title': 'Professor i Mykologisk Neurobiologi',
+                    'desc': 'Ledande expert på svampnätverkens bio-elektriska kommunikation.',
+                    'image': '/img/m.myceliaceae.jpg'
+                },
+                {
+                    'name': 'A. Amanita',
+                    'title': 'Ljuddesigner & Myko-musiker',
+                    'desc': 'Pionjär inom översättning av biologiska signaler till auditiv konst.',
+                    'image': '/img/a.amanita.jpg'
+                }
+            ],
+            'new_attendee': request.session.pop('new_attendee', None)
+        })
+
 class RegisterAttendeeView(views.APIView):
     permission_classes = [permissions.AllowAny]
-    authentication_classes = [] # Public endpoint, no session/token required
+    authentication_classes = [] 
 
     def post(self, request):
         serializer = AttendeeSerializer(data=request.data)
@@ -30,12 +55,31 @@ class RegisterAttendeeView(views.APIView):
                 attendee.image_url = os.path.join(settings.MEDIA_URL, relative_path)
                 attendee.save()
                 
-                return Response(AttendeeSerializer(attendee).data, status=status.HTTP_201_CREATED)
+                request.session['new_attendee'] = AttendeeSerializer(attendee).data
+                return redirect('index')
             except Exception as e:
                 logger.error(f"Art generation failed: {e}")
-                return Response(AttendeeSerializer(attendee).data, status=status.HTTP_201_CREATED)
+                request.session['new_attendee'] = AttendeeSerializer(attendee).data
+                return redirect('index')
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return render(request, 'App', props={
+            'errors': serializer.errors,
+            'event_date': '2025-12-24',
+            'speakers': [
+                {
+                    'name': 'Dr. M. Myceliaceae',
+                    'title': 'Professor i Mykologisk Neurobiologi',
+                    'desc': 'Ledande expert på svampnätverkens bio-elektriska kommunikation.',
+                    'image': '/img/m.myceliaceae.jpg'
+                },
+                {
+                    'name': 'A. Amanita',
+                    'title': 'Ljuddesigner & Myko-musiker',
+                    'desc': 'Pionjär inom översättning av biologiska signaler till auditiv konst.',
+                    'image': '/img/a.amanita.jpg'
+                }
+            ]
+        })
 
 class ListAttendeesView(views.APIView):
     def get(self, request):

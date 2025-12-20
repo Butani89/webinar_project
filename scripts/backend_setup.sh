@@ -25,7 +25,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# 4. Build Frontend (Vue + Tailwind)
+# 4. Build Frontend (Vue + Tailwind + Inertia)
 cd /var/www/html/frontend
 npm install
 npm run build
@@ -33,7 +33,7 @@ npm run build
 # 5. Setup Django
 cd /var/www/html/backend
 python manage.py migrate --noinput
-python manage.py collectstatic --noinput
+python manage.py collectstatic --noinput --clear
 
 # 6. Setup Systemd Service for Django (Gunicorn)
 cat <<EOF > /etc/systemd/system/webinar.service
@@ -64,20 +64,9 @@ cat <<EOF > /etc/nginx/sites-available/default
 server {
     listen 80;
     
-    # Serve Vue build output
-    location / {
-        root /var/www/html/app/static;
-        index index.html;
-        try_files \$uri \$uri/ /index.html;
-    }
-
-    # Django API
-    location /api/ {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
+    # Static Files (Django collectstatic output)
+    location /static/ {
+        alias /var/www/html/backend/staticfiles/;
     }
 
     # Django Media (Mushroom Art)
@@ -85,10 +74,13 @@ server {
         alias /var/www/html/backend/media/;
     }
 
-    # Django Admin
-    location /admin/ {
+    # Main Application (Django + Inertia)
+    location / {
         proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
 EOF

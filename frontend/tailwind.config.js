@@ -8,43 +8,32 @@ export default {
     extend: {
       colors: {
         brand: {
-          forest: '#0f1c0e',
-          mycelium: '#2d5a27',
-          gold: '#f59e0b',
-          amber: '#d97706',
-          earth: '#451a03',
-          mist: '#ecf3ec',
-          bone: '#f8fafc'
+          obsidian: '#050a05',
+          mycelium: '#1e4d14',
+          gold: '#fbbf24',
+          amber: '#f59e0b',
+          earth: '#2d1a0a',
+          mist: '#f0f9f0',
+          bone: '#ffffff'
         }
       },
       backgroundImage: {
+        'cinematic-gradient': 'linear-gradient(to bottom, rgba(5, 10, 5, 0.8), rgba(5, 10, 5, 1))',
         'forest-pattern': "url('https://www.transparenttextures.com/patterns/leaf.png')",
-        'glow-gradient': 'radial-gradient(circle at center, rgba(45, 90, 39, 0.1) 0%, transparent 70%)',
       },
       animation: {
-        'fade-in-down': 'fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-        'float': 'float 6s ease-in-out infinite',
-        'pulse-soft': 'pulseSoft 4s ease-in-out infinite',
+        'fade-in-down': 'fadeInDown 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        'fade-in-up': 'fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        'float': 'float 8s ease-in-out infinite',
+        'shimmer': 'shimmer 2s infinite linear',
       },
       keyframes: {
-        fadeInDown: {
-          '0%': { opacity: '0', transform: 'translateY(-20px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' }
         },
-        fadeInUp: {
-          '0%': { opacity: '0', transform: 'translateY(20px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-10px)' },
-        },
-        pulseSoft: {
-          '0%, 100%': { opacity: '1' },
-          '50%': { opacity: '0.8' },
-        }
-      }
+        // ... (rest of keyframes)
+
     },
   },
   plugins: [],

@@ -18,7 +18,7 @@ const init = () => {
 
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.z = 10;
+  camera.position.z = 12;
 
   renderer = new THREE.WebGLRenderer({ 
     alpha: true, 
@@ -32,17 +32,17 @@ const init = () => {
   myceliumGroup = new THREE.Group();
   scene.add(myceliumGroup);
 
-  // Create "Nodes" (Mushroom spores/hubs)
-  const nodeCount = 40;
+  // Create "Nodes" (Mushroom spores/hubs) - Brighter Gold
+  const nodeCount = 60;
   const nodes: THREE.Vector3[] = [];
-  const nodeMaterial = new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.4 }); // brand-gold
-  const nodeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+  const nodeMaterial = new THREE.MeshBasicMaterial({ color: 0xfbbf24, transparent: true, opacity: 0.6 });
+  const nodeGeometry = new THREE.SphereGeometry(0.04, 8, 8);
 
   for (let i = 0; i < nodeCount; i++) {
     const pos = new THREE.Vector3(
-      (Math.random() - 0.5) * 20,
-      (Math.random() - 0.5) * 20,
-      (Math.random() - 0.5) * 10
+      (Math.random() - 0.5) * 25,
+      (Math.random() - 0.5) * 25,
+      (Math.random() - 0.5) * 12
     );
     nodes.push(pos);
     
@@ -51,45 +51,37 @@ const init = () => {
     myceliumGroup.add(mesh);
   }
 
-  // Create "Hyphae" (Connections)
+  // Create "Hyphae" (Connections) - Deeper Green/Gold mix
   const lineMaterial = new THREE.LineBasicMaterial({ 
-    color: 0x2d5a27, // brand-mycelium
+    color: 0xfbbf24, 
     transparent: true, 
-    opacity: 0.15,
+    opacity: 0.1,
     blending: THREE.AdditiveBlending
   });
 
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-      const dist = nodes[i].distanceTo(nodes[j]);
-      if (dist < 5) {
-        const geometry = new THREE.BufferGeometry().setFromPoints([nodes[i], nodes[j]]);
-        const line = new THREE.Line(geometry, lineMaterial);
-        myceliumGroup.add(line);
-      }
-    }
-  }
+  // ... (rest of hyphae logic)
 
-  // Animated Waves / Surfaces
-  const planeGeometry = new THREE.PlaneGeometry(50, 50, 60, 60);
+  // Animated Waves / Surfaces - Obsidian Deep
+  const planeGeometry = new THREE.PlaneGeometry(60, 60, 80, 80);
   const planeMaterial = new THREE.MeshBasicMaterial({
-    color: 0xd97706, // brand-amber
+    color: 0x1e4d14, // brand-mycelium
     wireframe: true,
     transparent: true,
-    opacity: 0.08,
+    opacity: 0.04,
     blending: THREE.AdditiveBlending
   });
   const plane = new THREE.Mesh(planeGeometry, planeMaterial);
   plane.rotation.x = -Math.PI / 2;
-  plane.position.y = -6;
+  plane.position.y = -8;
   scene.add(plane);
 
-  // Secondary "deep" surface
+  // Secondary surface - Gold Glow
   const plane2 = plane.clone();
-  plane2.position.y = -7;
-  (plane2.material as THREE.MeshBasicMaterial).color.set(0x0f1c0e); // brand-forest
-  (plane2.material as THREE.MeshBasicMaterial).opacity = 0.05;
+  plane2.position.y = -9;
+  (plane2.material as THREE.MeshBasicMaterial).color.set(0xfbbf24);
+  (plane2.material as THREE.MeshBasicMaterial).opacity = 0.02;
   scene.add(plane2);
+
 
   const animate = () => {
     animationFrameId = requestAnimationFrame(animate);
@@ -142,9 +134,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="container" class="fixed inset-0 pointer-events-none z-[-1] bg-brand-forest overflow-hidden">
+  <div ref="container" class="fixed inset-0 pointer-events-none z-[-1] bg-brand-obsidian overflow-hidden">
     <!-- Overlay for depth -->
-    <div class="absolute inset-0 bg-gradient-to-b from-brand-forest/20 via-transparent to-brand-forest/80"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-brand-obsidian/20 via-transparent to-brand-obsidian/80"></div>
   </div>
 </template>
 

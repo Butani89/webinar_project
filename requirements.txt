@@ -8,3 +8,5 @@ python-dotenv
 pytest
 pytest-django
 factory-boy
+inertia-django
+django-vite

@@ -17,41 +17,24 @@ onUnmounted(() => {
 </script>
 
 <template>
-
   <nav :class="[
-
-    'fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-6 py-4 flex items-center justify-between',
-
-    isScrolled ? 'bg-brand-forest/90 backdrop-blur-md shadow-lg py-3' : 'bg-transparent'
-
+    'fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-8 py-6 flex items-center justify-between',
+    isScrolled ? 'bg-black/80 backdrop-blur-2xl border-b border-white/5 py-4' : 'bg-transparent'
   ]">
-
-    <div class="flex items-center gap-3 group cursor-pointer">
-
-      <img src="/img/logo.png" alt="Logo" class="w-10 h-10 transition-transform group-hover:rotate-12">
-
-      <span class="text-xl font-bold text-white tracking-tight">Svamparnas Värld</span>
-
+    <div class="flex items-center gap-4 group cursor-pointer">
+      <div class="w-10 h-10 bg-brand-gold/10 rounded-xl flex items-center justify-center border border-brand-gold/20 group-hover:rotate-12 transition-transform">
+        <img src="/img/logo.png" alt="Logo" class="w-6 h-6">
+      </div>
+      <span class="text-2xl font-black text-white tracking-tighter uppercase">SVAMPARNAS <span class="text-brand-gold">VÄRLD</span></span>
     </div>
-
     
-
-    <div class="hidden md:flex items-center gap-8">
-
-      <a href="#about" class="text-sm font-medium text-white/80 hover:text-white transition-colors">Om Eventet</a>
-
-      <a href="#speakers" class="text-sm font-medium text-white/80 hover:text-white transition-colors">Föreläsare</a>
-
-      <a href="#agenda" class="text-sm font-medium text-white/80 hover:text-white transition-colors">Agenda</a>
-
-      <a href="#register" class="bg-brand-gold hover:bg-brand-amber text-brand-forest px-5 py-2 rounded-full text-sm font-bold transition-all transform hover:scale-105 shadow-md">
-
-        Anmäl Dig
-
+    <div class="hidden md:flex items-center gap-12">
+      <a href="#speakers" class="text-[10px] font-black text-white/40 hover:text-brand-gold tracking-[0.3em] uppercase transition-all">Visionaries</a>
+      <a href="#agenda" class="text-[10px] font-black text-white/40 hover:text-brand-gold tracking-[0.3em] uppercase transition-all">The Map</a>
+      <a href="#register" class="group relative px-8 py-3 bg-brand-gold text-brand-obsidian text-[10px] font-black tracking-[0.3em] uppercase rounded-full transition-all hover:shadow-[0_0_30px_rgba(251,191,36,0.3)] overflow-hidden">
+        <span class="relative z-10">Entry Protocol</span>
+        <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
       </a>
-
     </div>
-
   </nav>
-
 </template>

@@ -1,37 +1,29 @@
 <script setup lang="ts">
-const speakers = [
-  {
-    name: 'Dr. M. Myceliaceae',
-    title: 'Professor i Mykologisk Neurobiologi',
-    desc: 'Ledande expert på svampnätverkens bio-elektriska kommunikation.',
-    image: '/img/m.myceliaceae.jpg'
-  },
-  {
-    name: 'A. Amanita',
-    title: 'Ljuddesigner & Myko-musiker',
-    desc: 'Pionjär inom översättning av biologiska signaler till auditiv konst.',
-    image: '/img/a.amanita.jpg'
-  }
-]
+defineProps<{
+  speakers: any[]
+}>()
 </script>
 
 <template>
-  <section id="speakers" class="py-24 px-4 bg-brand-mist">
+  <section id="speakers" class="py-32 px-6 bg-brand-obsidian">
     <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-black text-brand-forest mb-4">Möt Våra Föreläsare</h2>
-        <p class="text-gray-600 max-w-2xl mx-auto">Världsledande experter som förenar vetenskaplig precision med konstnärlig vision.</p>
+      <div class="text-center mb-24">
+        <div class="text-brand-amber font-black tracking-[0.5em] uppercase text-xs mb-4">The Visionaries</div>
+        <h2 class="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter">THE PIONEERS</h2>
+        <div class="w-24 h-1 bg-brand-amber mx-auto"></div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div v-for="speaker in speakers" :key="speaker.name" class="group relative flex flex-col md:flex-row items-center gap-8 p-8 rounded-3xl bg-white shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2">
-          <div class="relative w-48 h-48 shrink-0 overflow-hidden rounded-2xl border-4 border-brand-amber/20">
-            <img :src="speaker.image" :alt="speaker.name" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-16">
+        <div v-for="speaker in speakers" :key="speaker.name" class="group relative flex flex-col md:flex-row items-center gap-10 p-10 rounded-[3rem] bg-white/5 border border-white/5 hover:border-brand-gold/20 transition-all hover:-translate-y-2 backdrop-blur-3xl overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-br from-brand-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          
+          <div class="relative w-56 h-56 shrink-0 overflow-hidden rounded-[2rem] border-2 border-white/10 group-hover:border-brand-gold/40 transition-colors">
+            <img :src="speaker.image" :alt="speaker.name" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0">
           </div>
-          <div class="text-center md:text-left">
-            <h3 class="text-2xl font-bold text-brand-forest mb-1">{{ speaker.name }}</h3>
-            <p class="text-brand-amber font-bold text-sm uppercase tracking-wider mb-4">{{ speaker.title }}</p>
-            <p class="text-gray-600 leading-relaxed">{{ speaker.desc }}</p>
+          <div class="relative z-10 text-center md:text-left">
+            <h3 class="text-3xl font-black text-white mb-2 tracking-tight">{{ speaker.name }}</h3>
+            <p class="text-brand-gold font-black text-xs uppercase tracking-[0.2em] mb-6">{{ speaker.title }}</p>
+            <p class="text-brand-mist/40 leading-relaxed font-light text-lg">{{ speaker.desc }}</p>
           </div>
         </div>
       </div>
